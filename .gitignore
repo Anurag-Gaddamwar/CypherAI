@@ -1,4 +1,36 @@
-node_modules
-.next
+# Ignore node_modules directory
+node_modules/
 
+# Ignore .next directory (Next.js build directory)
+.next/
+
+# Ignore .env.local file (local environment variables file)
 .env.local
+
+# Ignore logs directory
+logs/
+
+# Ignore built files directory
+dist/
+
+# Ignore temporary files directory
+tmp/
+
+# Ignore npm lock file
+package-lock.json
+
+# Ignore yarn lock file
+yarn.lock
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore Visual Studio Code settings directory
+.vscode/
+
+# Ignore IDE-specific files and directories
+.idea/
+*.iml
+
+# Ignore development dependencies
+devDependencies/
