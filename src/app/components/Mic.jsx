@@ -9,7 +9,7 @@ const Mic = ({ handleMicClick, micIconRef }) => {
       src="./images/MicIcon.png"
       alt="Microphone icon"
       onClick={handleMicClick}
-      className="mic flex absolute w-20 h-20 cursor-pointer rounded-full shadow-md transition-all duration-300 ease-in-out"
+      className="mic flex w-20 h-20 cursor-pointer rounded-full shadow-md transition-all duration-300 ease-in-out mt-5"
     />
   );
 };

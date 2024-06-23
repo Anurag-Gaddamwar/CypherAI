@@ -68,6 +68,7 @@ body {
 
 /* Container styles */
 .message-container {
+  padding-top:200px;
   max-height: 24.5rem;
   overflow-y: auto;
   display: flex;
@@ -75,7 +76,6 @@ body {
   align-items: flex-end;
   padding: 10px;
   border-radius: 10px;
-  background-color: rgba(44, 62, 80, 0.4);
   backdrop-filter: blur(10px);
   max-width: calc(100% - 40px);
   margin-left: 20px;
@@ -84,8 +84,6 @@ body {
 
 /* Message styles */
 .message {
-  background: linear-gradient(to right, #28394f, #2c3e50);
-  color: #ffffff;
   border-radius: 10px;
   padding: 10px;
   margin: 10px 0;
@@ -233,3 +231,5 @@ body {
     opacity: 0;
   }
 }
+
+

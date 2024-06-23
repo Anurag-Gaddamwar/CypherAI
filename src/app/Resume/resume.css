@@ -1,0 +1,84 @@
+.upload-container {
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    position: relative;
+    border: 2px dashed #5ca8ff;
+    border-radius: 50%;
+    width: 300px;
+    height: 300px;
+    transition: border-color 0.3s ease-in-out;
+    margin: 0 auto;
+    
+  }
+  
+  .upload-container:hover {
+    border-color: #255e9d;
+    border:4px dashed #5ca8ff;
+  }
+  
+  .upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .upload-icon {
+    font-size: 48px;
+    color: #5ca8ff;
+  }
+  
+  .upload-text {
+    margin-top: 10px;
+    font-size: 16px;
+    text-align: center;
+  }
+  
+  .btn-analyze {
+    margin-top: 20px;
+  }
+  
+  .error-message {
+    margin-top: 10px;
+  }
+  
+  /* Add this to your CSS file */
+.custom-button {
+    border-radius: 0.375rem; /* This is equivalent to 'rounded-md' in Tailwind */
+    transition: border-radius 0.3s ease-in-out;
+   }
+   
+   .custom-button:hover {
+    border-radius: 0.5rem; /* Increase the border-radius on hover */
+   }
+   
+
+   .spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border-left-color: #3498db;
+    animation: spin 1s ease infinite;
+   }
+   
+   @keyframes spin {
+     0% {
+       transform: rotate(0deg);
+    }
+     100% {
+       transform: rotate(360deg);
+    }
+   }
+   
+
+ .gradient-border {
+  background-color: #f8f9fa; /* Set the background color */
+  border-width: 2px;
+  border-style: solid;
+ /* Define the gradient */
+  border-image-slice: 1; /* Ensure the entire border is filled with the gradient */
+  padding: 16px;
+  border-radius: px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Add a shadow */
+}

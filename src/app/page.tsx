@@ -1,8 +1,8 @@
-import CypherAI from "@/app/pages/CypherAI"
+import CypherAI from "@/app/pages/CypherAI";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-10">
+    <main>
       <CypherAI/>
     </main>
   );

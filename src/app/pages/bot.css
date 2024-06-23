@@ -1,0 +1,33 @@
+Custom scrollbar styles
+.custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+   }
+   
+   .custom-scrollbar::-webkit-scrollbar-track {
+    background: #2d3748; /* Match the background color of your message container */
+   }
+   
+   .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #4b5563; /* A lighter shade for the scrollbar thumb */
+    border-radius: 10px;
+   }
+   
+   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #6b7280; /* A darker shade for the scrollbar thumb on hover */
+   }
+   
+   /* Custom styles for the input div */
+   .custom-input-div {
+    border: 1px solid #4b5563;
+    border-radius: 12px;
+    padding: 8px;
+    outline: none;
+    resize: none;
+    color: #d1d5db;
+    background-color: #2d3748;
+   }
+   
+   .custom-input-div:focus-within {
+    border-color: #4299e1; /* Match the button color for focus */
+   }
+   
