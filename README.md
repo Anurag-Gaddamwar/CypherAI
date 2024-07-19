@@ -34,13 +34,16 @@ Cypher AI is an AI-driven interview preparation platform designed to help candid
 
 ## Technologies Used
 
-- **Frontend**: Next.js, React.js, react-markdown, WebKitSpeech API, OCR
+- **Frontend**: Next.js, React.js, react-markdown
 - **Backend**: Express.js, Node.js
-- **API**: Gemini API
+- **APIs and Tools**:
+  - WebKitSpeech API (for voice interactions)
+  - OCR (for text extraction)
+  - Gemini API (for advanced analytics and processing)
 
 ## Contributing
 
-We welcome contributions to enhance Cypher AI. To contribute, please follow these steps:
+I welcome contributions to enhance Cypher AI. To contribute, please follow these steps:
 
 1. Fork the repository.
 2. Create a new branch (`git checkout -b feature-branch`).
