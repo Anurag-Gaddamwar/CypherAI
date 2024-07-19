@@ -13,7 +13,7 @@ Cypher AI is an AI-driven interview preparation platform designed to help candid
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/cypher-ai.git
+    git clone https://github.com/Anurag-Gaddamwar/cypher-ai.git
     ```
 2. Navigate to the project directory:
     ```bash
