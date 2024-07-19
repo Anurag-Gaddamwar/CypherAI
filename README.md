@@ -28,7 +28,7 @@ Cypher AI is an AI-driven interview preparation platform designed to help candid
 
 1. Start the development server:
     ```bash
-    npm start
+    npm run dev
     ```
 2. Open your browser and navigate to `http://localhost:3000` to access the application.
 
