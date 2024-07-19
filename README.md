@@ -54,4 +54,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For questions or support, please contact Anurag Gaddangwar at anurag@example.com.
+For questions or support, please contact Anurag Gaddangwar at gaddamwaranurag@gmail.com.
