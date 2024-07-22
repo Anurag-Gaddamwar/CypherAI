@@ -14,9 +14,9 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 
 app.use(express.json());
 app.use(cors({
-  origin: 'https://cypher-ai.vercel.app', 
+  // origin: 'http://localhost:3000/', 
 }));
-
+ 
 
 app.post('/generate-content', async (req, res) => {
   try {

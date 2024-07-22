@@ -1,10 +1,11 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import Mic from '@/app/components/Mic'; // Import the Mic component
+import Mic from '@/app/components/Mic'; 
 import Navbar from '../components/Navbar';
 import './bot.css'
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
 function CypherAI() {
   const [messages, setMessages] = useState([]);
@@ -15,14 +16,21 @@ function CypherAI() {
   const recognitionRef = useRef(null);
   const synthRef = useRef(null);
   const messageContainerRef = useRef(null);
+  const [isLoading, setLoading] = useState(false);
+  const [loadingIndex, setLoadingIndex] = useState(null);  
+
 
   const handleSendClick = () => {
     if (input.trim() !== '') {
+      const newMessageIndex = messages.length;
       setMessages(prevMessages => [...prevMessages, { text: input, fromUser: true }]);
       setInput('');
+      setLoading(true);
+      setLoadingIndex(newMessageIndex); // Set the index for the loading placeholder
       generateResponse(input, false); // Text input, so isVoiceInput is false
     }
   };
+  
 
 
   const handleKeyDown = (event) => {
@@ -102,26 +110,28 @@ function CypherAI() {
 
   const generateResponse = async (question, isVoiceInput) => {
     try {
-      const response = await fetch('https://cypher-ai.vercel.app/generate-content', {
+      const response = await fetch('http://localhost:3001/generate-content', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ question }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to fetch response');
       }
-
+  
       const data = await response.json();
-      console.log('Server response:', data); // Log the server response
-
+      console.log('Server response:', data);
+  
       if (data.text) {
         const responseText = data.text.trim();
         setMessages(prevMessages => [...prevMessages, { text: responseText, fromUser: false }]);
+        setLoading(false);
+        setLoadingIndex(null);
         if (isVoiceInput) {
-          speak(responseText); // Only speak if input was voice
+          speak(responseText);
         }
       } else {
         handleResponseError('I could not find a suitable answer.', isVoiceInput);
@@ -129,8 +139,13 @@ function CypherAI() {
     } catch (error) {
       console.error('Error generating response:', error);
       handleResponseError('An error occurred while generating a response.', isVoiceInput);
+    } finally {
+      setLoading(false);
+      setLoadingIndex(null); // Ensure loading is cleared
     }
   };
+  
+  
 
 
 
@@ -254,32 +269,43 @@ function CypherAI() {
     }
   }, [messages]);
 
+
+  
   return (
-    <div className="min-h-screen font-sans text-sm bg-gray-900 text-white flex flex-col">
+    <div className="max-h-screen font-sans text-sm bg-gradient-to-br from-black to-midnight-blue text-white flex flex-col">
       <Navbar />
       <main className="flex-grow overflow-hidden">
         <div className="flex-grow h-[80vh] max-h-[80vh] overflow-y-hidden relative">
-          <div className='bg-gray-800'>
-            <h1 className="text-2xl font-bold py-4 px-6 text-white">CypherAI</h1>
+          <div className="bg-gradient-to-br from-midnight-blue to-black">
+            <h1 className="text-2xl font-bold cursor-pointer py-4 px-6 text-white">CypherAI</h1>
           </div>
-          <div className="mt-20 mb-0 absolute inset-0 overflow-y-auto flex flex-col custom-scrollbar" ref={messageContainerRef}>
+          <div className="mt-20 mb-0 absolute inset-0 overflow-y-auto flex flex-col scrollbar-thin scrollbar-thumb-scrollbar-thumb scrollbar-track-scrollbar-track custom-scrollbar" ref={messageContainerRef}>
   {messages.map((message, index) => (
     <div
       key={index}
-      className={`message p-3 rounded-xl ${message.fromUser ? 'bg-blue-800 text-white self-end my-3 sm:mx-4 lg:mx-10 xl:mx-16 2xl:mx-24 flex justify-center' : 'bg-gray-800 text-white self-start my-3 sm:mx-4 lg:mx-10 xl:mx-16 2xl:mx-24 flex justify-center'}`}
+      className={`message p-4 rounded-xl ${
+        message.fromUser ? 'bg-gradient-to-bl from-gray-700 self-end my-4 sm:mx-4 lg:mx-10 xl:mx-16 2xl:mx-24 flex justify-center text-white' : 'bg-gradient-to-br from-[#272323] self-start my-4 sm:mx-4 lg:mx-10 xl:mx-16 2xl:mx-24 flex justify-center text-white'
+      }`}
     >
-      <ReactMarkdown 
-        className="prose prose-invert" // Apply styling for Markdown content
-        remarkPlugins={[remarkGfm]} // Support GitHub Flavored Markdown
+      <ReactMarkdown
+        className="prose prose-invert"
+        remarkPlugins={[remarkGfm]}
       >
         {message.text}
       </ReactMarkdown>
     </div>
   ))}
+  {loadingIndex !== null && messages.length === loadingIndex + 1 && (
+    <div className="message p-4 rounded-xl bg-midnight-blue self-start my-4 sm:mx-4 lg:mx-10 xl:mx-16 2xl:mx-24 flex justify-center text-white">
+      <div className="flex items-center justify-center py-4">
+        <div className="loading-spinner"></div>
+      </div>
+    </div>
+  )}
 </div>
 
         </div>
-        <div className='justify-center align-center flex'>
+        <div className="justify-center align-center flex">
           <Mic
             handleMicClick={handleMicClick}
             isListening={isListening}
@@ -287,38 +313,34 @@ function CypherAI() {
             micIconRef={micIconRef}
           />
         </div>
-        <div className="message-input mb-0 bottom-0 relative flex items-center bg-gray-800 p-4 rounded-2xl">
+        <div className="message-input mb-0 bottom-0 relative flex items-center bg-gradient-to-br from-gray-800 to-black p-4 rounded-t-xl shadow-md">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             style={{
               flexGrow: 1,
-              border: '1px solid #4b5563',
-              borderRadius: '12px',
-              padding: '8px',
+              border: 'none',
+              borderRadius: '16px',
+              padding: '12px',
               outline: 'none',
               resize: 'none',
-              color: '#d1d5db',
-              backgroundColor: '#2d3748',
+              color: '#e2e8f0',
+              backgroundColor: 'transparent',
+              fontSize: '16px',
             }}
-            placeholder="Please specify the part of the interview you need assistance with..."
+            placeholder="Type your message here..."
             onKeyDown={handleKeyDown}
-          ></textarea>
+          />
           <button
-            className='bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-mg ml-4'
+            className="bg-gradient-to-r text-white hover:bg-gradient-to-r hover:from-teal-500 hover:via-blue-500 hover:to-purple-500 transition-all duration-300 px-6 py-3 rounded-full shadow-lg transform hover:scale-105 flex items-center justify-center"
             onClick={handleSendClick}
-            style={{
-              borderRadius: '8px'
-            }}
           >
-            Send
+            <PaperAirplaneIcon className="w-5 h-5 text-white" />
           </button>
         </div>
       </main>
-
     </div>
   );
-
-}
+};
 
 export default CypherAI;

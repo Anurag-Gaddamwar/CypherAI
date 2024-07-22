@@ -6,6 +6,7 @@ node_modules/
 
 # Ignore .env.local file (local environment variables file)
 .env.local
+.env
 
 # Ignore logs directory
 logs/

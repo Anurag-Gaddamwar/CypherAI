@@ -121,13 +121,13 @@ const Resume = () => {
   };
 
   return (
-    <div className='bg-gray-900 font-sans min-h-screen flex flex-col'>
+    <div className="min-h-screen font-sans text-sm bg-gradient-to-br from-black to-midnight-blue text-white flex flex-col">
       <Navbar />
-      <div className="container mx-auto  p-6 bg-gray-900 shadow-lg w-full max-w-7xl min-h-screen overflow-auto">
+      <div className=" mx-auto  p-6 shadow-lg w-full max-w-7xl overflow-auto">
         <h1 className="text-3xl font-semibold mb-12 text-white">Upload Your Resume</h1>
         {/* File upload container */}
         <div
-          className="upload-container bg-gray-800 text-black p-8 rounded-md flex items-center justify-center border-2 border-gray-800"
+          className="upload-containe text-black p-8 rounded-md flex items-center justify-center border-2 border-gray-800"
           onDrop={handleDrop}
           onDragOver={handleDragOver}
         >
@@ -139,9 +139,11 @@ const Resume = () => {
             id="fileInput"
           />
           <label htmlFor="fileInput" className="cursor-pointer">
-            <div className="upload-content flex flex-col items-center">
+            <div className="upload-content flex flex-col items-center hover:scale-105 duration-300 transform transition">
+              
               <FaUpload className="upload-icon text-4xl mb-4" />
-              <span className="upload-text text-lg text-white">Drag and drop your resume here or click to select a file</span>
+              <span className="upload-text text-lg text-white">Drop resume or browse</span>
+             
             </div>
           </label>
         </div>
@@ -168,7 +170,7 @@ const Resume = () => {
         {/* Analyze button */}
         <div className='flex justify-center mt-10'>
           <button
-            className={`bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-md transition-all ease-in-out duration-200 hover:px-6 hover:py-3 ${!fileSelected ? 'opacity-50 cursor-not-allowed' : ''
+            className={`bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110 ${!fileSelected ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             onClick={handleUpload}
             disabled={!fileSelected || !jobRole} // Disable button if file or job role is not selected
