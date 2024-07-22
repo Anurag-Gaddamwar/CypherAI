@@ -51,7 +51,7 @@ const Resume = () => {
       formData.append('jobRole', jobRole); // Append job role to form data
 
       // Send POST request to backend for analysis
-      const response = await axios.post('http://localhost:3002/upload-file', formData, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/upload-file`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -124,7 +124,7 @@ const Resume = () => {
   return (
     <div className="min-h-screen font-sans text-sm bg-gradient-to-br from-black to-midnight-blue text-white flex flex-col">
       <Navbar />
-      <div className=" mx-auto  p-6 shadow-lg w-full max-w-7xl overflow-auto">
+      <div className=" mx-auto mt-20 p-6 shadow-lg w-full max-w-7xl overflow-auto">
         <h1 className="text-3xl font-semibold mb-12 text-white">Upload Your Resume</h1>
         {/* File upload container */}
         <div

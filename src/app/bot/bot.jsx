@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
+
 function CypherAI() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -18,6 +19,8 @@ function CypherAI() {
   const messageContainerRef = useRef(null);
   const [isLoading, setLoading] = useState(false);
   const [loadingIndex, setLoadingIndex] = useState(null);  
+  const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
+
 
 
   const handleSendClick = () => {
@@ -27,6 +30,7 @@ function CypherAI() {
       setInput('');
       setLoading(true);
       setLoadingIndex(newMessageIndex); // Set the index for the loading placeholder
+      setIsAwaitingResponse(true);
       generateResponse(input, false); // Text input, so isVoiceInput is false
     }
   };
@@ -110,7 +114,7 @@ function CypherAI() {
 
   const generateResponse = async (question, isVoiceInput) => {
     try {
-      const response = await fetch('http://localhost:3001/generate-content', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-content`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +123,7 @@ function CypherAI() {
       });
   
       if (!response.ok) {
-        throw new Error('Failed to fetch response');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
   
       const data = await response.json();
@@ -141,9 +145,11 @@ function CypherAI() {
       handleResponseError('An error occurred while generating a response.', isVoiceInput);
     } finally {
       setLoading(false);
-      setLoadingIndex(null); // Ensure loading is cleared
+      setLoadingIndex(null);
+      setIsAwaitingResponse(false);
     }
   };
+  
   
   
 
@@ -273,18 +279,20 @@ function CypherAI() {
   
   return (
     <div className="max-h-screen font-sans text-sm bg-gradient-to-br from-black to-midnight-blue text-white flex flex-col">
-      <Navbar />
-      <main className="flex-grow overflow-hidden">
-        <div className="flex-grow h-[80vh] max-h-[80vh] overflow-y-hidden relative">
-          <div className="bg-gradient-to-br from-midnight-blue to-black">
-            <h1 className="text-2xl font-bold cursor-pointer py-4 px-6 text-white">CypherAI</h1>
+      <Navbar/>
+      <main className="flex-grow overflow-hidden flex flex-col">
+        <div className="flex-grow h-[80vh] sm:mx-10 max-h-[80vh] mb-[4rem] sm:max-h-[100vh] sm:mb-[4.3rem] sm:h-[100vh] overflow-y-hidden relative">
+          <div className="bg-gradient-to-br from-midnight-blue to-black p-4 md:p-6">
+            <h1 className="fixed z-20 mt-16 text-2xl md:text-2xl font-bold cursor-pointer text-white">CypherAI</h1>
           </div>
-          <div className="mt-20 mb-0 absolute inset-0 overflow-y-auto flex flex-col scrollbar-thin scrollbar-thumb-scrollbar-thumb scrollbar-track-scrollbar-track custom-scrollbar" ref={messageContainerRef}>
+          <div className="mt-32  absolute inset-0 overflow-y-auto flex flex-col custom-scrollbar" ref={messageContainerRef}>
   {messages.map((message, index) => (
     <div
       key={index}
-      className={`message p-4 rounded-xl ${
-        message.fromUser ? 'bg-gradient-to-bl from-gray-700 self-end my-4 sm:mx-4 lg:mx-10 xl:mx-16 2xl:mx-24 flex justify-center text-white' : 'bg-gradient-to-br from-[#272323] self-start my-4 sm:mx-4 lg:mx-10 xl:mx-16 2xl:mx-24 flex justify-center text-white'
+      className={`message p-2 md:p-4 rounded-xl ${
+        message.fromUser
+          ? 'bg-gradient-to-bl from-gray-700 self-end my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white'
+          : 'bg-gradient-to-br from-[#272323] self-start my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white'
       }`}
     >
       <ReactMarkdown
@@ -296,8 +304,8 @@ function CypherAI() {
     </div>
   ))}
   {loadingIndex !== null && messages.length === loadingIndex + 1 && (
-    <div className="message p-4 rounded-xl bg-midnight-blue self-start my-4 sm:mx-4 lg:mx-10 xl:mx-16 2xl:mx-24 flex justify-center text-white">
-      <div className="flex items-center justify-center py-4">
+    <div className="message p-2 md:p-4 rounded-xl bg-midnight-blue self-start my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white">
+      <div className="flex items-center justify-center py-2 md:py-4">
         <div className="loading-spinner"></div>
       </div>
     </div>
@@ -305,7 +313,7 @@ function CypherAI() {
 </div>
 
         </div>
-        <div className="justify-center align-center flex">
+        <div className="flex justify-center items-center p-2 md:p-4">
           <Mic
             handleMicClick={handleMicClick}
             isListening={isListening}
@@ -313,34 +321,28 @@ function CypherAI() {
             micIconRef={micIconRef}
           />
         </div>
-        <div className="message-input mb-0 bottom-0 relative flex items-center bg-gradient-to-br from-gray-800 to-black p-4 rounded-t-xl shadow-md">
+        <div className="fixed mb-0 bottom-0 left-0 right-0 flex items-center bg-gradient-to-br from-gray-800 to-black p-2 md:p-4 rounded-t-xl shadow-md">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            style={{
-              flexGrow: 1,
-              border: 'none',
-              borderRadius: '16px',
-              padding: '12px',
-              outline: 'none',
-              resize: 'none',
-              color: '#e2e8f0',
-              backgroundColor: 'transparent',
-              fontSize: '16px',
-            }}
+            className="flex-grow border-none rounded-lg p-2 md:p-4 outline-none resize-none text-gray-200 bg-transparent text-base md:text-lg"
             placeholder="Type your message here..."
             onKeyDown={handleKeyDown}
+            disabled={isAwaitingResponse}
           />
           <button
-            className="bg-gradient-to-r text-white hover:bg-gradient-to-r hover:from-teal-500 hover:via-blue-500 hover:to-purple-500 transition-all duration-300 px-6 py-3 rounded-full shadow-lg transform hover:scale-105 flex items-center justify-center"
+            className="bg-gradient-to-r text-white hover:bg-gradient-to-r hover:from-teal-500 hover:via-blue-500 hover:to-purple-500 transition-all duration-300 px-4 md:px-6 py-2 md:py-3 rounded-full shadow-lg transform hover:scale-105 flex items-center justify-center"
             onClick={handleSendClick}
+            disabled={isAwaitingResponse}
           >
-            <PaperAirplaneIcon className="w-5 h-5 text-white" />
+            <PaperAirplaneIcon className="w-4 md:w-5 h-4 md:h-5 text-white" />
           </button>
         </div>
       </main>
     </div>
   );
+
+  
 };
 
 export default CypherAI;

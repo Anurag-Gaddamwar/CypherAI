@@ -4,8 +4,6 @@ const multer = require('multer');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs');
 const pdfParse = require('pdf-parse');
-const Tesseract = require('tesseract.js');
-const { Console } = require('console');
 require('dotenv').config();
 
 
@@ -17,7 +15,7 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:3000', // Adjust this to match your frontend's origin
+  origin: ['https://cypher-ai.vercel.app/resume', 'http://localhost:3000'],
 }));
 
 const upload = multer({ dest: 'uploads/' });
@@ -111,4 +109,3 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
- 

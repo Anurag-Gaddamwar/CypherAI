@@ -55,6 +55,38 @@ body {
   position: fixed;
 }
 
+
+/* Custom scrollbar styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #1f1f1f; /* Track color */
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #3a3a3a; /* Scrollbar handle color */
+  border-radius: 8px;
+  border: 2px solid #1f1f1f; /* Border around the scrollbar handle */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #575757; /* Scrollbar handle color on hover */
+}
+
+/* Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin; /* Thin scrollbar for Firefox */
+  scrollbar-color: #3a3a3a #1f1f1f; /* Scrollbar handle and track color for Firefox */
+}
+
+.custom-scrollbar:hover {
+  scrollbar-color: #575757 #1f1f1f; /* Scrollbar handle color on hover for Firefox */
+}
+
+
 .static-loading-indicator {
   position: fixed;
   top: 0;
