@@ -1,9 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import axios from 'axios';
-import Navbar from '../components/Navbar';
+import Navbar from '../src/app/components/Navbar';
 import { FaUpload, FaFileAlt } from 'react-icons/fa';
 import './resume.css';
+import '../src/app/globals.css'
 
 const Resume = () => {
   // State variables for file upload, analysis result, loading state, error message, uploaded file name, and job role
@@ -127,7 +128,7 @@ const Resume = () => {
         <h1 className="text-3xl font-semibold mb-12 text-white">Upload Your Resume</h1>
         {/* File upload container */}
         <div
-          className="upload-containe text-black p-8 rounded-md flex items-center justify-center border-2 border-gray-800"
+          className="text-black p-8 rounded-md flex items-center justify-center border-2 border-gray-800"
           onDrop={handleDrop}
           onDragOver={handleDragOver}
         >

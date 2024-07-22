@@ -1,22 +1,3 @@
-.upload-container {
-    display: flex;
-    justify-content: center;
-    align-items: center; 
-    position: relative;
-    border: 2px dashed #5ca8ff;
-    border-radius: 50%;
-    width: 300px;
-    height: 300px;
-    transition: border-color 0.3s ease-in-out;
-    margin: 0 auto;
-    
-  }
-  
-  .upload-container:hover {
-    border-color: #255e9d;
-    border:4px dashed #5ca8ff;
-  }
-  
   .upload-content {
     display: flex;
     flex-direction: column;
