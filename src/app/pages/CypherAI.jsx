@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import Mic from '@/app/components/Mic'; 
-import Navbar from '../components/Navbar';
+import Navbar from '@/app/components/Navbar';
 import './bot.css'
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
