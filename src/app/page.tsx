@@ -1,4 +1,4 @@
-import CypherAI from "@/app/pages/CypherAI";
+import CypherAI from "@/app/pages/bot";
 
 export default function Home() {
   return (
