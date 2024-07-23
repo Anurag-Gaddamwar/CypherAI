@@ -7,7 +7,6 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
-
 function CypherAI() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -21,8 +20,6 @@ function CypherAI() {
   const [loadingIndex, setLoadingIndex] = useState(null);  
   const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
 
-
-
   const handleSendClick = () => {
     if (input.trim() !== '') {
       const newMessageIndex = messages.length;
@@ -34,8 +31,6 @@ function CypherAI() {
       generateResponse(input, false); // Text input, so isVoiceInput is false
     }
   };
-  
-
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -59,7 +54,6 @@ function CypherAI() {
       clearTimeout(timeoutId);
     };
   }, []);
-
 
   const startRecognition = () => {
     setLoading(true);
@@ -111,12 +105,11 @@ function CypherAI() {
       }
       startRecognition();
     }
-    
   };
 
   const generateResponse = async (question, isVoiceInput) => {
-    setLoading(true);
     try {
+      setLoading(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-content`, {
         method: 'POST',
         headers: {
@@ -135,8 +128,6 @@ function CypherAI() {
       if (data.text) {
         const responseText = data.text.trim();
         setMessages(prevMessages => [...prevMessages, { text: responseText, fromUser: false }]);
-        setLoading(false);
-        setLoadingIndex(null);
         if (isVoiceInput) {
           speak(responseText);
         }
@@ -153,30 +144,22 @@ function CypherAI() {
     }
   };
 
-
-
   useEffect(() => {
-  const handleBeforeUnload = () => {
-    if (synthRef.current && synthRef.current.speaking) {
-      synthRef.current.cancel();
-    }
-  };
+    const handleBeforeUnload = () => {
+      if (synthRef.current && synthRef.current.speaking) {
+        synthRef.current.cancel();
+      }
+    };
 
-  window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
-  return () => {
-    window.removeEventListener('beforeunload', handleBeforeUnload);
-    if (synthRef.current && synthRef.current.speaking) {
-      synthRef.current.cancel();
-    }
-  };
-}, []);
-
-  
-  
-  
-
-
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (synthRef.current && synthRef.current.speaking) {
+        synthRef.current.cancel();
+      }
+    };
+  }, []);
 
   const handleResponseError = (errorMessage, isVoiceInput) => {
     setMessages(prevMessages => [...prevMessages, { text: errorMessage, fromUser: false }]);
@@ -190,7 +173,7 @@ function CypherAI() {
     speak(errorMessage);
     setMessages(prevMessages => [...prevMessages, { text: errorMessage, fromUser: false }]);
   };
- 
+
   const speak = (text) => {
     if (typeof window !== 'undefined' && synthRef.current) {
       // Remove Markdown formatting
@@ -231,9 +214,6 @@ function CypherAI() {
     }
   };
 
-
-
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       synthRef.current = window.speechSynthesis;
@@ -263,109 +243,56 @@ function CypherAI() {
     const intervalId = setInterval(() => {
       const x = Math.floor(Math.random() * 10) - 5;
       const y = Math.floor(Math.random() * 10) - 5;
-      const spread = Math.floor(Math.random() * 10) + 5;
-      const blur = Math.floor(Math.random() * 10) + 5;
-      const color = '#77c4ff';
-
-      micIcon.style.boxShadow = `${x}px ${y}px ${spread}px ${blur}px ${color}`;
+      micIcon.style.transform = `translate(${x}px, ${y}px)`;
     }, 100);
 
-    return () => {
-      clearInterval(intervalId);
-    };
+    return () => clearInterval(intervalId);
   }, [isMoving]);
 
-  useEffect(() => {
-    const micIcon = micIconRef.current;
-    if (!micIcon) return;
-
-    micIcon.onmouseover = () => {
-      if (!isListening) {
-        micIcon.style.boxShadow = '0 0 5px 5px #77c4ff';
-      }
-    };
-
-    micIcon.onmouseout = () => {
-      if (!isListening) {
-        micIcon.style.boxShadow = '';
-      }
-    };
-  }, [isListening]);
-
-  useEffect(() => {
-    if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-
-  
   return (
-    <div className="max-h-screen font-sans text-sm bg-gradient-to-br from-black to-midnight-blue text-white flex flex-col">
-      <Navbar/>
-      <main className="flex-grow overflow-hidden flex flex-col">
-        <div className="flex-grow h-[80vh] sm:mx-10 max-h-[80vh] mb-[4rem] sm:max-h-[100vh] sm:mb-[4.3rem] sm:h-[100vh] overflow-y-hidden relative">
-          <div className="bg-gradient-to-br from-midnight-blue to-black p-4 md:p-6">
-            <h1 className="fixed z-20 mt-16 text-2xl md:text-2xl font-bold cursor-pointer text-white">CypherAI</h1>
+    <>
+      <Navbar />
+      <div className="container">
+        <div className="content">
+          <div className="message-container" ref={messageContainerRef}>
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={msg.fromUser ? 'message user-message' : 'message bot-message'}
+              >
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+              </div>
+            ))}
+            {isLoading && loadingIndex !== null && (
+              <div className="message bot-message loading-message">
+                <div className="loading-spinner">
+                  <div className="spinner-dot"></div>
+                  <div className="spinner-dot"></div>
+                  <div className="spinner-dot"></div>
+                </div>
+              </div>
+            )}
           </div>
-          <div className="mt-32  absolute inset-0 overflow-y-auto flex flex-col custom-scrollbar" ref={messageContainerRef}>
-  {messages.map((message, index) => (
-    <div
-      key={index}
-      className={`message p-2 md:p-4 rounded-xl ${
-        message.fromUser
-          ? 'bg-gradient-to-bl from-gray-700 self-end my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white'
-          : 'bg-gradient-to-br from-[#272323] self-start my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white'
-      }`}
-    >
-      <ReactMarkdown
-        className="prose prose-invert"
-        remarkPlugins={[remarkGfm]}
-      >
-        {message.text}
-      </ReactMarkdown>
-    </div>
-  ))}
-  {loadingIndex !== null && messages.length === loadingIndex + 1 && (
-    <div className="message p-2 md:p-4 rounded-xl bg-midnight-blue self-start my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white">
-      <div className="flex items-center justify-center py-2 md:py-4">
-        <div className="loading-spinner"></div>
+          <div className="input-container">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your message here..."
+            />
+            <button onClick={handleSendClick}>
+              <PaperAirplaneIcon className="send-icon" />
+            </button>
+            <div
+              className={`mic-icon ${isListening ? 'listening' : ''}`}
+              onClick={handleMicClick}
+              ref={micIconRef}
+            />
+          </div>
+        </div>
       </div>
-    </div>
-  )}
-</div>
-
-        </div>
-        <div className="flex justify-center items-center p-2 md:p-4">
-          <Mic
-            handleMicClick={handleMicClick}
-            isListening={isListening}
-            isMoving={isMoving}
-            micIconRef={micIconRef}
-          />
-        </div>
-        <div className="fixed mb-0 bottom-0 left-0 right-0 flex items-center bg-gradient-to-br from-gray-800 to-black p-2 md:p-4 rounded-t-xl shadow-md">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-grow border-none rounded-lg p-2 md:p-4 outline-none resize-none text-gray-200 bg-transparent text-base md:text-lg"
-            placeholder="Type your message here..."
-            onKeyDown={handleKeyDown}
-            disabled={isAwaitingResponse}
-          />
-          <button
-            className="bg-gradient-to-r text-white hover:bg-gradient-to-r hover:from-teal-500 hover:via-blue-500 hover:to-purple-500 transition-all duration-300 px-4 md:px-6 py-2 md:py-3 rounded-full shadow-lg transform hover:scale-105 flex items-center justify-center"
-            onClick={handleSendClick}
-            disabled={isAwaitingResponse}
-          >
-            <PaperAirplaneIcon className="w-4 md:w-5 h-4 md:h-5 text-white" />
-          </button>
-        </div>
-      </main>
-    </div>
+    </>
   );
-
-  
-};
+}
 
 export default CypherAI;
