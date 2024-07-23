@@ -314,11 +314,11 @@ const speak = (text) => {
   {messages.map((message, index) => (
     <div
       key={index}
-      className={message p-2 md:p-4 rounded-xl ${
+      className={`message p-2 md:p-4 rounded-xl ${
         message.fromUser
           ? 'bg-gradient-to-bl from-gray-700 self-end my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white'
           : 'bg-gradient-to-br from-[#272323] self-start my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white'
-      }}
+      }`}
     >
       <ReactMarkdown
         className="prose prose-invert"
