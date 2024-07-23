@@ -51,7 +51,7 @@ const Resume = () => {
       formData.append('jobRole', jobRole); // Append job role to form data
 
       // Send POST request to backend for analysis
-      const response = await axios.post(`${process.env.NEXT_APP_API_URL}/upload-file`, formData, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload-file`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
