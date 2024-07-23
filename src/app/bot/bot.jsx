@@ -270,7 +270,7 @@ const generateResponse = async (question, isVoiceInput) => {
       const blur = Math.floor(Math.random() * 10) + 5;
       const color = '#77c4ff';
 
-      micIcon.style.boxShadow = ${x}px ${y}px ${spread}px ${blur}px ${color};
+      micIcon.style.boxShadow = `${x}px ${y}px ${spread}px ${blur}px ${color}`;
     }, 100);
 
     return () => {
