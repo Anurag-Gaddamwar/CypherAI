@@ -130,7 +130,6 @@ const generateResponse = async (question, isVoiceInput) => {
     }
 
     const data = await response.json();
-    console.log('Server response:', data);
 
     if (data.text) {
       const responseText = data.text.trim();
