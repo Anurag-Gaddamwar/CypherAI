@@ -117,7 +117,7 @@ function CypherAI() {
   const generateResponse = async (question, isVoiceInput) => {
     setLoading(true);
     try {
-      const response = await fetch(${process.env.NEXT_PUBLIC_API_URL}/generate-content, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-content`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
