@@ -113,6 +113,7 @@ function CypherAI() {
   };
 
   const generateResponse = async (question, isVoiceInput) => {
+    setLoading(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-content`, {
         method: 'POST',
@@ -149,6 +150,26 @@ function CypherAI() {
       setIsAwaitingResponse(false);
     }
   };
+
+
+
+  useEffect(() => {
+  const handleBeforeUnload = () => {
+    if (synthRef.current && synthRef.current.speaking) {
+      synthRef.current.cancel();
+    }
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
+  return () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    if (synthRef.current && synthRef.current.speaking) {
+      synthRef.current.cancel();
+    }
+  };
+}, []);
+
   
   
   
