@@ -192,47 +192,46 @@ const generateResponse = async (question, isVoiceInput) => {
     setMessages(prevMessages => [...prevMessages, { text: errorMessage, fromUser: false }]);
   };
  
-  const speak = (text) => {
-    if (typeof window !== 'undefined' && synthRef.current) {
-      // Remove Markdown formatting
-      const cleanedText = text
-        .replace(/\*\*([^*]+)\*\*/g, '$1')  // Remove bold
-        .replace(/\*([^*]+)\*/g, '$1')   // Remove italic
-        .replace(/_([^_]+)_/g, '$1')    // Remove underline
-        .replace(/~([^~]+)~/g, '$1')   // Remove strikethrough
-        .replace(/#+\s?/g, '')        // Remove headers
-        .replace(/- /g, '')          // Remove list items
-        .replace(/
-[^`]+
-/g, ''); // Remove code blocks (simple)
+const speak = (text) => {
+  if (typeof window !== 'undefined' && synthRef.current) {
+    // Remove Markdown formatting
+    const cleanedText = text
+      .replace(/\*\*([^*]+)\*\*/g, '$1')  // Remove bold
+      .replace(/\*([^*]+)\*/g, '$1')   // Remove italic
+      .replace(/_([^_]+)_/g, '$1')    // Remove underline
+      .replace(/~([^~]+)~/g, '$1')   // Remove strikethrough
+      .replace(/#+\s?/g, '')        // Remove headers
+      .replace(/- /g, '')          // Remove list items
+      .replace(/`[^`]*`/g, '');    // Remove inline code
 
-      // Remove non-alphabetic characters (as before)
-      const finalText = cleanedText.replace(/[^a-zA-Z\s.,!?']/g, '');
+    // Remove non-alphabetic characters (as before)
+    const finalText = cleanedText.replace(/[^a-zA-Z\s.,!?']/g, '');
 
-      const utterance = new SpeechSynthesisUtterance(finalText);
-      const voices = window.speechSynthesis.getVoices();
-      const preferredVoices = voices.filter(voice => {
-        return voice.localService && // Prioritize local voices for better performance
-          !voice.name.includes('compact') && // Avoid compact voices, which are often lower quality
-          (voice.lang.startsWith('en-IN') || voice.lang === 'en-US'); // Indian English or US English
-      });
+    const utterance = new SpeechSynthesisUtterance(finalText);
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoices = voices.filter(voice => {
+      return voice.localService && // Prioritize local voices for better performance
+        !voice.name.includes('compact') && // Avoid compact voices, which are often lower quality
+        (voice.lang.startsWith('en-IN') || voice.lang === 'en-US'); // Indian English or US English
+    });
 
-      // Fallback to other voices if no preferred voices are available
-      const voiceToUse = preferredVoices[0] || voices.find(voice => voice.lang === 'en-US') || voices[0];
+    // Fallback to other voices if no preferred voices are available
+    const voiceToUse = preferredVoices[0] || voices.find(voice => voice.lang === 'en-US') || voices[0];
 
-      if (!voiceToUse) {
-        console.error("No suitable voices found.");
-        return;
-      }
-
-      utterance.voice = voiceToUse;
-      utterance.rate = 1.2;
-      utterance.pitch = 0.5;
-      utterance.volume = 1;
-      synthRef.current.cancel();
-      synthRef.current.speak(utterance);
+    if (!voiceToUse) {
+      console.error("No suitable voices found.");
+      return;
     }
-  };
+
+    utterance.voice = voiceToUse;
+    utterance.rate = 1.2;
+    utterance.pitch = 0.5;
+    utterance.volume = 1;
+    synthRef.current.cancel();
+    synthRef.current.speak(utterance);
+  }
+};
+
 
 
 
