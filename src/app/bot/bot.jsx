@@ -114,44 +114,45 @@ function CypherAI() {
     
   };
 
-  const generateResponse = async (question, isVoiceInput) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-content`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ question }),
-      });
-  
-      if (!response.ok) {
-        throw new Error(HTTP error! status: ${response.status});
-      }
-  
-      const data = await response.json();
-      console.log('Server response:', data);
-  
-      if (data.text) {
-        const responseText = data.text.trim();
-        setMessages(prevMessages => [...prevMessages, { text: responseText, fromUser: false }]);
-        setLoading(false);
-        setLoadingIndex(null);
-        if (isVoiceInput) {
-          speak(responseText);
-        }
-      } else {
-        handleResponseError('I could not find a suitable answer.', isVoiceInput);
-      }
-    } catch (error) {
-      console.error('Error generating response:', error);
-      handleResponseError('An error occurred while generating a response.', isVoiceInput);
-    } finally {
+const generateResponse = async (question, isVoiceInput) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-content`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ question }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Server response:', data);
+
+    if (data.text) {
+      const responseText = data.text.trim();
+      setMessages(prevMessages => [...prevMessages, { text: responseText, fromUser: false }]);
       setLoading(false);
       setLoadingIndex(null);
-      setIsAwaitingResponse(false);
+      if (isVoiceInput) {
+        speak(responseText);
+      }
+    } else {
+      handleResponseError('I could not find a suitable answer.', isVoiceInput);
     }
-  };
+  } catch (error) {
+    console.error('Error generating response:', error);
+    handleResponseError('An error occurred while generating a response.', isVoiceInput);
+  } finally {
+    setLoading(false);
+    setLoadingIndex(null);
+    setIsAwaitingResponse(false);
+  }
+};
+
 
 
 
