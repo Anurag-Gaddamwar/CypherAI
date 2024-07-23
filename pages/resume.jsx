@@ -224,7 +224,7 @@ return (
                 </ul>
               </div>
             )}
-   <h3 className="text-lg font-semibold mb-2 text-gray-800">Areas for Improvement</h3>
+   <h3 className="text-lg font-semibold mb-2 text-white">Areas for Improvement</h3>
   {parseAnalysisResult(analysisResult).areasForImprovement.length > 0 && (
     <div>
       <ul className="list-disc ml-5 text-gray-300">
