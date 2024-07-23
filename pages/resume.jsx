@@ -221,17 +221,17 @@ return (
                 </ul>
               </div>
             )}
-            {parseAnalysisResult(analysisResult).areasForImprovement.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">Areas for Improvement</h3>
-                <ul className="list-disc ml-5 text-gray-300">
-                  {parseAnalysisResult(analysisResult).areasForImprovement.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
+  {parseAnalysisResult(analysisResult).areasForImprovement.length > 0 && (
+    <div>
+      <h3 className="text-lg font-semibold mb-2 text-gray-800">Areas for Improvement</h3>
+      <ul className="list-disc ml-5 text-gray-300">
+        {parseAnalysisResult(analysisResult).areasForImprovement.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  )}
+</div>
 
           {/* Additional Notes */}
           {parseAnalysisResult(analysisResult).additionalNotes.length > 0 && (
