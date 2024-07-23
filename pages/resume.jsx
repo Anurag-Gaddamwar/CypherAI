@@ -57,7 +57,6 @@ const Resume = () => {
         },
       });
 
-
       // Update analysis result and hide loading spinner
       setAnalysisResult(response.data.text);
       setLoading(false);
@@ -172,8 +171,8 @@ const Resume = () => {
         {/* Analyze button */}
         <div className='flex justify-center mt-10'>
           <button
-            className={bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110 ${!fileSelected ? 'opacity-50 cursor-not-allowed' : ''
-              }}
+            className={`bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110 ${!fileSelected ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             onClick={handleUpload}
             disabled={!fileSelected || !jobRole} // Disable button if file or job role is not selected
           >
