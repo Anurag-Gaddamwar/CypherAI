@@ -119,12 +119,15 @@ const parseAnalysisResult = (result) => {
       sections.invalidResume = true;
     } else if (currentSection === 'Strengths' && cleanedLine) {
       sections.strengths.push(cleanedLine);
+    } else if (cleanedLine.startsWith('Areas for Improvement:')) {
+      currentSection = 'Areas for Improvement';
+      sections.areasForImprovement.push("## Areas for Improvement"); // This line adds the heading
     } else if (currentSection === 'Areas for Improvement' && cleanedLine) {
       sections.areasForImprovement.push(cleanedLine);
-    } else if (currentSection === 'Additional Notes' && cleanedLine) {
+    }  else if (currentSection === 'Additional Notes' && cleanedLine) {
       sections.additionalNotes.push(cleanedLine);
     }
-  });
+    });
 
   return sections;
 };
