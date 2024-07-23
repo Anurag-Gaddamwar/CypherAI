@@ -302,7 +302,7 @@ const speak = (text) => {
 
   
   return (
-    <div className="max-h-screen font-sans text-sm bg-gradient-to-br from-black to-midnight-blue text-white flex flex-col">
+    <div className="max-h-screen font-sans text-sm bg-black text-white flex flex-col">
       <Navbar/>
       <main className="flex-grow overflow-hidden flex flex-col">
         <div className="flex-grow h-[80vh] sm:mx-10 max-h-[80vh] mb-[4rem] sm:max-h-[100vh] sm:mb-[4.3rem] sm:h-[100vh] overflow-y-hidden relative">
