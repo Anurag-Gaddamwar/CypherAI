@@ -62,6 +62,7 @@ function CypherAI() {
 
 
   const startRecognition = () => {
+    setLoading(true);
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       console.error('SpeechRecognition is not supported in this browser.');
@@ -110,6 +111,7 @@ function CypherAI() {
       }
       startRecognition();
     }
+    
   };
 
   const generateResponse = async (question, isVoiceInput) => {
