@@ -224,9 +224,10 @@ return (
                 </ul>
               </div>
             )}
-   <h3 className="text-lg font-semibold mb-2 text-white">Areas for Improvement</h3>
+   
   {parseAnalysisResult(analysisResult).areasForImprovement.length > 0 && (
     <div>
+      <h3 className="text-lg font-semibold mb-2 text-white">Areas for Improvement</h3>
       <ul className="list-disc ml-5 text-gray-300">
         {parseAnalysisResult(analysisResult).areasForImprovement.map((item, index) => (
           <li key={index}>{item}</li>
