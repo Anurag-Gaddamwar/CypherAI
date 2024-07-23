@@ -197,7 +197,7 @@ return (
       {/* Display analysis result */}
       {analysisResult && (
         <div className="mt-24">
-          <h2 className="text-4xl mb-20 font-bold text-gray-300 text-center border-y pt-5 pb-6 border-white">Resume Analysis Report</h2>
+          <h2 className="sm:text-4xl text-2xl mb-20 font-bold text-gray-300 text-center border-y pt-5 pb-6 border-white">Resume Analysis Report</h2>
 
           {/* Grid layout for scores */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -221,9 +221,9 @@ return (
                 </ul>
               </div>
             )}
+   <h3 className="text-lg font-semibold mb-2 text-gray-800">Areas for Improvement</h3>
   {parseAnalysisResult(analysisResult).areasForImprovement.length > 0 && (
     <div>
-      <h3 className="text-lg font-semibold mb-2 text-gray-800">Areas for Improvement</h3>
       <ul className="list-disc ml-5 text-gray-300">
         {parseAnalysisResult(analysisResult).areasForImprovement.map((item, index) => (
           <li key={index}>{item}</li>
