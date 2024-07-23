@@ -81,45 +81,43 @@ const Resume = () => {
     }
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+const parseAnalysisResult = (result) => {
+  const lines = result.split('\n').map(line => line.trim());
 
-  const parseAnalysisResult = (result) => {
-    const lines = result.split('\n').map(line => line.trim());
+  const scores = {};
+  const strengths = [];
+  const areasForImprovement = [];
+  const additionalNotes = [];
 
-    const scores = {};
-    const strengths = [];
-    const areasForImprovement = [];
-    const additionalNotes = [];
+  let currentSection = null;
 
-    let currentSection = null;
-    lines.forEach(line => {
-      // Remove asterisks from the line
-      const cleanedLine = line.replace(/\*/g, '');
+  lines.forEach(line => {
+    // Remove asterisks from the line
+    const cleanedLine = line.replace(/\*/g, '');
 
-      if (cleanedLine.includes("Score:")) {
-        const [title, value] = cleanedLine.split(":");
-        scores[title.trim()] = value.trim();
-      } else if (cleanedLine === "Strengths:") {
-        currentSection = "Strengths";
-      } else if (cleanedLine === "Areas for Improvement:") {
-        currentSection = "Areas for Improvement";
-      } else if (cleanedLine === "Additional Notes:") {
-        currentSection = "Additional Notes";
-      } else if (currentSection && cleanedLine !== "") {
-        if (currentSection === "Strengths") {
-          strengths.push(cleanedLine);
-        } else if (currentSection === "Areas for Improvement") {
-          areasForImprovement.push(cleanedLine);
-        } else {
-          additionalNotes.push(cleanedLine);
-        }
+    if (cleanedLine.includes("Score:")) {
+      const [title, value] = cleanedLine.split(":");
+      scores[title.trim()] = value.trim();
+    } else if (cleanedLine === "Strengths:") {
+      currentSection = "Strengths";
+    } else if (cleanedLine === "Areas for Improvement:") {
+      currentSection = "Areas for Improvement";
+    } else if (cleanedLine === "Additional Notes:") {
+      currentSection = "Additional Notes";
+    } else if (currentSection && cleanedLine !== "") {
+      if (currentSection === "Strengths") {
+        strengths.push(cleanedLine);
+      } else if (currentSection === "Areas for Improvement") {
+        areasForImprovement.push(cleanedLine);
+      } else if (currentSection === "Additional Notes") {
+        additionalNotes.push(cleanedLine);
       }
-    });
+    }
+  });
 
-    return { scores, strengths, areasForImprovement, additionalNotes };
-  };
+  return { scores, strengths, areasForImprovement, additionalNotes };
+};
+  
 
   return (
     <div className="min-h-screen font-sans text-sm bg-gradient-to-br from-black to-midnight-blue text-white flex flex-col">
@@ -187,7 +185,7 @@ const Resume = () => {
         )}
         {/* Error message */}
         {errorMessage && <p className="text-red-600 mt-6">{errorMessage}</p>}
-        {/* Display analysis result */}
+        
         {/* Display analysis result */}
         {analysisResult && (
           <div className="mt-24">
@@ -203,25 +201,26 @@ const Resume = () => {
               ))}
             </div>
 
-            {/* Strengths and Areas for Improvement */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Strengths</h3>
-                <ul className="list-disc ml-5 text-gray-300">
-                  {parseAnalysisResult(analysisResult).strengths.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">Areas for Improvement</h3>
-                <ul className="list-disc ml-5 text-gray-300">
-                  {parseAnalysisResult(analysisResult).areasForImprovement.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+// Display Strengths and Areas for Improvement
+<div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
+  <div>
+    <h3 className="text-lg font-semibold mb-2">Strengths</h3>
+    <ul className="list-disc ml-5 text-gray-300">
+      {parseAnalysisResult(analysisResult).strengths.map((item, index) => (
+        <li key={index}>{item}</li>
+      ))}
+    </ul>
+  </div>
+  <div>
+    <h3 className="text-lg font-semibold mb-2 text-gray-800">Areas for Improvement</h3>
+    <ul className="list-disc ml-5 text-gray-300">
+      {parseAnalysisResult(analysisResult).areasForImprovement.map((item, index) => (
+        <li key={index}>{item}</li>
+      ))}
+    </ul>
+  </div>
+</div>
+
 
             {/* Additional Notes */}
             {parseAnalysisResult(analysisResult).additionalNotes.length > 0 && (
