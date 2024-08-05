@@ -86,50 +86,44 @@ const Resume = () => {
   };
 
 const parseAnalysisResult = (result) => {
-  const sections = {
-    scores: {},
-    strengths: [],
-    areasForImprovement: [],
-    additionalNotes: [],
-    invalidResume: false
-  };
+  try {
+    // Parse the JSON response
+    const parsedResult = JSON.parse(result);
 
-  const lines = result.split('\n').map(line => line.trim());
-  
-  let currentSection = null;
+    // Extract scores
+    const scores = {
+      'ATS Score': parsedResult['ATS Score'] || 'N/A',
+      'Content Relevance Score': parsedResult['Content Relevance Score'] || 'N/A',
+      'Structure and Formatting Score': parsedResult['Structure and Formatting Score'] || 'N/A',
+      'Overall Resume Score': parsedResult['Overall Resume Score'] || 'N/A',
+    };
 
-  lines.forEach(line => {
-    const cleanedLine = line.replace(/\*/g, '').trim();
+    // Extract strengths
+    const strengths = parsedResult['Strengths'] ? parsedResult['Strengths'].split('\n').filter(line => line.trim()) : [];
 
-    if (cleanedLine.startsWith('ATS Compatibility Score:')) {
-      sections.scores['ATS Compatibility'] = cleanedLine.split(':')[1]?.trim() || 'N/A';
-    } else if (cleanedLine.startsWith('Content Relevance Score:')) {
-      sections.scores['Content Relevance'] = cleanedLine.split(':')[1]?.trim() || 'N/A';
-    } else if (cleanedLine.startsWith('Structure and Formatting Score:')) {
-      sections.scores['Structure and Formatting'] = cleanedLine.split(':')[1]?.trim() || 'N/A';
-    } else if (cleanedLine.startsWith('Overall Resume Score:')) {
-      sections.scores['Overall Resume'] = cleanedLine.split(':')[1]?.trim() || 'N/A';
-    } else if (cleanedLine.startsWith('Strengths:')) {
-      currentSection = 'Strengths';
-    } else if (cleanedLine.startsWith('Areas for Improvement:')) {
-      currentSection = 'Areas for Improvement';
-    } else if (cleanedLine.startsWith('Additional Notes:')) {
-      currentSection = 'Additional Notes';
-    } else if (cleanedLine.startsWith('Invalid Resume:')) {
-      sections.invalidResume = true;
-    } else if (currentSection === 'Strengths' && cleanedLine) {
-      sections.strengths.push(cleanedLine);
-    } else if (cleanedLine.startsWith('Areas for Improvement:')) {
-      currentSection = 'Areas for Improvement';
-      sections.areasForImprovement.push("## Areas for Improvement"); // This line adds the heading
-    } else if (currentSection === 'Areas for Improvement' && cleanedLine) {
-      sections.areasForImprovement.push(cleanedLine);
-    }  else if (currentSection === 'Additional Notes' && cleanedLine) {
-      sections.additionalNotes.push(cleanedLine);
-    }
-    });
+    // Extract areas for improvement
+    const areasForImprovement = parsedResult['Areas of Improvement'] ? parsedResult['Areas of Improvement'].split('\n').filter(line => line.trim()) : [];
 
-  return sections;
+    // Additional notes can be included if the backend provides them
+    const additionalNotes = parsedResult['Additional Notes'] ? parsedResult['Additional Notes'].split('\n').filter(line => line.trim()) : [];
+
+    return {
+      scores,
+      strengths,
+      areasForImprovement,
+      additionalNotes,
+      invalidResume: parsedResult['Invalid Resume'] || false
+    };
+  } catch (error) {
+    console.error('Error parsing analysis result:', error);
+    return {
+      scores: {},
+      strengths: [],
+      areasForImprovement: [],
+      additionalNotes: [],
+      invalidResume: true
+    };
+  }
 };
 
 
@@ -138,6 +132,7 @@ return (
     <Navbar />
     <div className="mx-auto mt-20 p-6 shadow-lg w-full max-w-7xl overflow-auto">
       <h1 className="text-3xl font-semibold mb-12 text-white">Upload Your Resume</h1>
+      
       {/* File upload container */}
       <div
         className="text-black p-8 rounded-md flex items-center justify-center border-2 border-gray-800"
@@ -171,6 +166,7 @@ return (
           className="w-full px-4 py-2 text-black rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
         />
       </div>
+      
       {/* Display uploaded file name */}
       {uploadedFileName && (
         <div className="mt-8 flex items-center justify-center bg-gray-800 rounded-2xl border-[0.1px] p-4">
@@ -178,6 +174,7 @@ return (
           <p className="text-gray-300">Uploaded File: {uploadedFileName}</p>
         </div>
       )}
+      
       {/* Analyze button */}
       <div className='flex justify-center mt-10'>
         <button
@@ -189,14 +186,17 @@ return (
           Analyze Resume
         </button>
       </div>
+      
       {/* Loading spinner */}
       {loading && (
         <div className="flex justify-center mt-8">
           <div className="spinner"></div>
         </div>
       )}
+      
       {/* Error message */}
       {errorMessage && <p className="text-red-600 mt-6">{errorMessage}</p>}
+      
       {/* Display analysis result */}
       {analysisResult && (
         <div className="mt-24">
@@ -225,17 +225,17 @@ return (
               </div>
             )}
    
-  {parseAnalysisResult(analysisResult).areasForImprovement.length > 0 && (
-    <div>
-      <h3 className="text-lg font-semibold my-2 text-white">Areas for Improvement</h3>
-      <ul className="list-disc ml-5 text-gray-300">
-        {parseAnalysisResult(analysisResult).areasForImprovement.map((item, index) => (
-          <li key={index}>{item}</li>
-        ))}
-      </ul>
-    </div>
-  )}
-</div>
+            {parseAnalysisResult(analysisResult).areasForImprovement.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold my-2 text-white">Areas for Improvement</h3>
+                <ul className="list-disc ml-5 text-gray-300">
+                  {parseAnalysisResult(analysisResult).areasForImprovement.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
 
           {/* Additional Notes */}
           {parseAnalysisResult(analysisResult).additionalNotes.length > 0 && (
