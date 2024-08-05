@@ -7,7 +7,6 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
-
 function CypherAI() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -21,8 +20,6 @@ function CypherAI() {
   const [loadingIndex, setLoadingIndex] = useState(null);  
   const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
 
-
-
   const handleSendClick = () => {
     if (input.trim() !== '') {
       const newMessageIndex = messages.length;
@@ -34,8 +31,6 @@ function CypherAI() {
       generateResponse(input, false); // Text input, so isVoiceInput is false
     }
   };
-  
-
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -59,7 +54,6 @@ function CypherAI() {
       clearTimeout(timeoutId);
     };
   }, []);
-
 
   const startRecognition = () => {
     setLoading(true);
@@ -111,72 +105,67 @@ function CypherAI() {
       }
       startRecognition();
     }
-    
   };
 
-const generateResponse = async (question, isVoiceInput) => {
-  setLoading(true);
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-content`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ question }),
-    });
+  const generateResponse = async (currentQuery, isVoiceInput) => {
+    setLoading(true);
+    try {
+      const prevConversation = messages.slice(-10).map(message => message.text).join('\n');
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-content`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentQuery,       // Send the new user input
+          prevConversation,  // Send the conversation history
+        }),
+      });
 
-    const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    if (data.text) {
-      const responseText = data.text.trim();
-      setMessages(prevMessages => [...prevMessages, { text: responseText, fromUser: false }]);
+      const data = await response.json();
+
+      if (data.text) {
+        const responseText = data.text.trim();
+        setMessages(prevMessages => [...prevMessages, { text: responseText, fromUser: false }]);
+        setLoading(false);
+        setLoadingIndex(null);
+        if (isVoiceInput) {
+          speak(responseText);
+        }
+      } else {
+        handleResponseError('I could not find a suitable answer.', isVoiceInput);
+      }
+    } catch (error) {
+      console.error('Error generating response:', error);
+      handleResponseError('An error occurred while generating a response.', isVoiceInput);
+    } finally {
       setLoading(false);
       setLoadingIndex(null);
-      if (isVoiceInput) {
-        speak(responseText);
-      }
-    } else {
-      handleResponseError('I could not find a suitable answer.', isVoiceInput);
+      setIsAwaitingResponse(false);
     }
-  } catch (error) {
-    console.error('Error generating response:', error);
-    handleResponseError('An error occurred while generating a response.', isVoiceInput);
-  } finally {
-    setLoading(false);
-    setLoadingIndex(null);
-    setIsAwaitingResponse(false);
-  }
-};
-
-
-
+  };
 
   useEffect(() => {
-  const handleBeforeUnload = () => {
-    if (synthRef.current && synthRef.current.speaking) {
-      synthRef.current.cancel();
-    }
-  };
+    const handleBeforeUnload = () => {
+      if (synthRef.current && synthRef.current.speaking) {
+        synthRef.current.cancel();
+      }
+    };
 
-  window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
-  return () => {
-    window.removeEventListener('beforeunload', handleBeforeUnload);
-    if (synthRef.current && synthRef.current.speaking) {
-      synthRef.current.cancel();
-    }
-  };
-}, []);
-
-  
-  
-  
-
-
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (synthRef.current && synthRef.current.speaking) {
+        synthRef.current.cancel();
+      }
+    };
+  }, []);
 
   const handleResponseError = (errorMessage, isVoiceInput) => {
     setMessages(prevMessages => [...prevMessages, { text: errorMessage, fromUser: false }]);
@@ -190,50 +179,43 @@ const generateResponse = async (question, isVoiceInput) => {
     speak(errorMessage);
     setMessages(prevMessages => [...prevMessages, { text: errorMessage, fromUser: false }]);
   };
- 
-const speak = (text) => {
-  if (typeof window !== 'undefined' && synthRef.current) {
-    // Remove Markdown formatting
-    const cleanedText = text
-      .replace(/\*\*([^*]+)\*\*/g, '$1')  // Remove bold
-      .replace(/\*([^*]+)\*/g, '$1')   // Remove italic
-      .replace(/_([^_]+)_/g, '$1')    // Remove underline
-      .replace(/~([^~]+)~/g, '$1')   // Remove strikethrough
-      .replace(/#+\s?/g, '')        // Remove headers
-      .replace(/- /g, '')          // Remove list items
-      .replace(/`[^`]*`/g, '');    // Remove inline code
 
-    // Remove non-alphabetic characters (as before)
-    const finalText = cleanedText.replace(/[^a-zA-Z\s.,!?']/g, '');
+  const speak = (text) => {
+    if (typeof window !== 'undefined' && synthRef.current) {
+      const cleanedText = text
+        .replace(/\*\*([^*]+)\*\*/g, '$1')  // Remove bold
+        .replace(/\*([^*]+)\*/g, '$1')   // Remove italic
+        .replace(/_([^_]+)_/g, '$1')    // Remove underline
+        .replace(/~([^~]+)~/g, '$1')   // Remove strikethrough
+        .replace(/#+\s?/g, '')        // Remove headers
+        .replace(/- /g, '')          // Remove list items
+        .replace(/`[^`]*`/g, '');    // Remove inline code
 
-    const utterance = new SpeechSynthesisUtterance(finalText);
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoices = voices.filter(voice => {
-      return voice.localService && // Prioritize local voices for better performance
-        !voice.name.includes('compact') && // Avoid compact voices, which are often lower quality
-        (voice.lang.startsWith('en-IN') || voice.lang === 'en-US'); // Indian English or US English
-    });
+      const finalText = cleanedText.replace(/[^a-zA-Z\s.,!?']/g, '');
 
-    // Fallback to other voices if no preferred voices are available
-    const voiceToUse = preferredVoices[0] || voices.find(voice => voice.lang === 'en-US') || voices[0];
+      const utterance = new SpeechSynthesisUtterance(finalText);
+      const voices = window.speechSynthesis.getVoices();
+      const preferredVoices = voices.filter(voice => {
+        return voice.localService && // Prioritize local voices for better performance
+          !voice.name.includes('compact') && // Avoid compact voices, which are often lower quality
+          (voice.lang.startsWith('en-IN') || voice.lang === 'en-US'); // Indian English or US English
+      });
 
-    if (!voiceToUse) {
-      console.error("No suitable voices found.");
-      return;
+      const voiceToUse = preferredVoices[0] || voices.find(voice => voice.lang === 'en-US') || voices[0];
+
+      if (!voiceToUse) {
+        console.error("No suitable voices found.");
+        return;
+      }
+
+      utterance.voice = voiceToUse;
+      utterance.rate = 1.2;
+      utterance.pitch = 0.5;
+      utterance.volume = 1;
+      synthRef.current.cancel();
+      synthRef.current.speak(utterance);
     }
-
-    utterance.voice = voiceToUse;
-    utterance.rate = 1.2;
-    utterance.pitch = 0.5;
-    utterance.volume = 1;
-    synthRef.current.cancel();
-    synthRef.current.speak(utterance);
-  }
-};
-
-
-
-
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -299,8 +281,6 @@ const speak = (text) => {
     }
   }, [messages]);
 
-
-  
   return (
     <div className="max-h-screen font-sans text-sm bg-black text-white flex flex-col">
       <Navbar/>
@@ -310,32 +290,31 @@ const speak = (text) => {
             <h1 className="fixed z-20 mt-16 text-2xl md:text-2xl font-bold cursor-pointer text-white">CypherAI</h1>
           </div>
           <div className="mt-32  absolute inset-0 overflow-y-auto flex flex-col custom-scrollbar" ref={messageContainerRef}>
-  {messages.map((message, index) => (
-    <div
-      key={index}
-      className={`message p-2 md:p-4 rounded-xl ${
-        message.fromUser
-          ? 'bg-gradient-to-bl from-gray-700 self-end my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white'
-          : 'bg-gradient-to-br from-[#272323] self-start my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white'
-      }`}
-    >
-      <ReactMarkdown
-        className="prose prose-invert"
-        remarkPlugins={[remarkGfm]}
-      >
-        {message.text}
-      </ReactMarkdown>
-    </div>
-  ))}
-  {loadingIndex !== null && messages.length === loadingIndex + 1 && (
-    <div className="message p-2 md:p-4 rounded-xl bg-midnight-blue self-start my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white">
-      <div className="flex items-center justify-center py-2 md:py-4">
-        <div className="loading-spinner"></div>
-      </div>
-    </div>
-  )}
-</div>
-
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`message p-2 md:p-4 rounded-xl ${
+                  message.fromUser
+                    ? 'bg-gradient-to-bl from-gray-700 self-end my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white'
+                    : 'bg-gradient-to-br from-[#272323] self-start my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white'
+                }`}
+              >
+                <ReactMarkdown
+                  className="prose prose-invert"
+                  remarkPlugins={[remarkGfm]}
+                >
+                  {message.text}
+                </ReactMarkdown>
+              </div>
+            ))}
+            {loadingIndex !== null && messages.length === loadingIndex + 1 && (
+              <div className="message p-2 md:p-4 rounded-xl bg-midnight-blue self-start my-2 md:my-4 mx-2 md:mx-4 flex justify-center text-white">
+                <div className="flex items-center justify-center py-2 md:py-4">
+                  <div className="loading-spinner"></div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex justify-center items-center p-2 md:p-4">
           <Mic
@@ -365,8 +344,6 @@ const speak = (text) => {
       </main>
     </div>
   );
-
-  
-};
+}
 
 export default CypherAI;
