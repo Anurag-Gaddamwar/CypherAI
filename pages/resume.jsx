@@ -134,7 +134,7 @@ const Resume = () => {
     return sections;
   };
 
-  return (
+ return (
     <div className="min-h-screen font-sans text-sm bg-black text-white flex flex-col">
       <Navbar />
       <div className="mx-auto mt-20 p-6 shadow-lg w-full max-w-7xl overflow-auto">
@@ -184,7 +184,7 @@ const Resume = () => {
           <button
             className={`bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110 ${!fileSelected ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={handleUpload}
-            disabled={!fileSelected || !jobRole || isSubmitting} // Disable button if file or job role is not selected or submission is in progress
+            disabled={!fileSelected || !jobRole} // Disable button if file or job role is not selected
           >
             Analyze Resume
           </button>
@@ -197,7 +197,7 @@ const Resume = () => {
         )}
         {/* Error message */}
         {errorMessage && <p className="text-red-600 mt-6">{errorMessage}</p>}
-        {/* Display analysis result, but only if not loading */}
+        {/* Display analysis result */}
         {!loading && analysisResult && (
           <div className="mt-24">
             <h2 className="sm:text-4xl text-2xl mb-20 font-bold text-gray-300 text-center border-y pt-5 pb-6 border-white">Resume Analysis Report</h2>
@@ -205,48 +205,44 @@ const Resume = () => {
             {/* Grid layout for scores */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {Object.entries(parseAnalysisResult(analysisResult).scores).map(([title, value]) => (
-                <div key={title} className="p-6 bg-gray-800 rounded-lg border border-gray-700">
-                  <h3 className="text-xl font-semibold text-white">{title}</h3>
+                <div key={title} className="bg-gray-800 p-6 rounded-lg shadow-md">
+                  <h3 className="text-lg font-semibold mb-2">{title}</h3>
                   <p className="text-gray-300">{value}</p>
                 </div>
               ))}
             </div>
-            {/* Strengths */}
-            {parseAnalysisResult(analysisResult).strengths.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-gray-300 mb-4">Strengths</h3>
-                <ul className="list-disc list-inside text-gray-300">
-                  {parseAnalysisResult(analysisResult).strengths.map((strength, index) => (
-                    <li key={index}>{strength}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {/* Areas for Improvement */}
-            {parseAnalysisResult(analysisResult).areasForImprovement.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-gray-300 mb-4">Areas for Improvement</h3>
-                <ul className="list-disc list-inside text-gray-300">
-                  {parseAnalysisResult(analysisResult).areasForImprovement.map((area, index) => (
-                    <li key={index}>{area}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+
+            {/* Strengths and Areas for Improvement */}
+            <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
+              {parseAnalysisResult(analysisResult).strengths.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Strengths</h3>
+                  <ul className="list-disc ml-5 text-gray-300">
+                    {parseAnalysisResult(analysisResult).strengths.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+    
+              {parseAnalysisResult(analysisResult).areasForImprovement.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold my-2 text-white">Areas for Improvement</h3>
+                  <ul className="list-disc ml-5 text-gray-300">
+                    {parseAnalysisResult(analysisResult).areasForImprovement.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
             {/* Additional Notes */}
             {parseAnalysisResult(analysisResult).additionalNotes.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-gray-300 mb-4">Additional Notes</h3>
-                <ul className="list-disc list-inside text-gray-300">
-                  {parseAnalysisResult(analysisResult).additionalNotes.map((note, index) => (
-                    <li key={index}>{note}</li>
-                  ))}
-                </ul>
+              <div className="bg-gray-800 p-6 rounded-xl shadow-lg">
+                <h3 className="text-lg font-semibold mb-4">Additional Notes</h3>
+                <p className="text-gray-300">{parseAnalysisResult(analysisResult).additionalNotes.join(' ')}</p>
               </div>
-            )}
-            {/* Invalid Resume */}
-            {parseAnalysisResult(analysisResult).invalidResume && (
-              <p className="text-red-600">The resume appears to be invalid or poorly formatted.</p>
             )}
           </div>
         )}
@@ -256,3 +252,4 @@ const Resume = () => {
 };
 
 export default Resume;
+
