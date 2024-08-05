@@ -3,7 +3,7 @@ import axios from 'axios';
 import Navbar from '../src/app/components/Navbar';
 import { FaUpload, FaFileAlt } from 'react-icons/fa';
 import './resume.css';
-import '../src/app/globals.css'
+import '../src/app/globals.css';
 
 const Resume = () => {
   // State variables for file upload, analysis result, loading state, error message, uploaded file name, and job role
@@ -14,6 +14,7 @@ const Resume = () => {
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [fileSelected, setFileSelected] = useState(false); // State for tracking if file is selected
   const [jobRole, setJobRole] = useState(''); // State for job role input
+  const [isSubmitting, setIsSubmitting] = useState(false); // State to prevent multiple submissions
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -23,6 +24,9 @@ const Resume = () => {
   };
 
   const handleUpload = async () => {
+    // Check if already submitting
+    if (isSubmitting) return;
+
     try {
       // Check if file is selected
       if (!file) {
@@ -44,6 +48,7 @@ const Resume = () => {
 
       setLoading(true); // Show loading spinner
       setErrorMessage('');
+      setIsSubmitting(true); // Prevent further submissions
 
       const formData = new FormData();
       formData.append('file', file);
@@ -66,6 +71,8 @@ const Resume = () => {
       console.error('Error uploading file:', error);
       setErrorMessage('Error Analyzing your Resume');
       setLoading(false); // Hide loading spinner
+    } finally {
+      setIsSubmitting(false); // Allow further submissions
     }
   };
 
@@ -177,7 +184,7 @@ const Resume = () => {
           <button
             className={`bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110 ${!fileSelected ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={handleUpload}
-            disabled={!fileSelected || !jobRole} // Disable button if file or job role is not selected
+            disabled={!fileSelected || !jobRole || isSubmitting} // Disable button if file or job role is not selected or submission is in progress
           >
             Analyze Resume
           </button>
@@ -190,52 +197,56 @@ const Resume = () => {
         )}
         {/* Error message */}
         {errorMessage && <p className="text-red-600 mt-6">{errorMessage}</p>}
-        {/* Display analysis result */}
-        {analysisResult && (
+        {/* Display analysis result, but only if not loading */}
+        {!loading && analysisResult && (
           <div className="mt-24">
             <h2 className="sm:text-4xl text-2xl mb-20 font-bold text-gray-300 text-center border-y pt-5 pb-6 border-white">Resume Analysis Report</h2>
 
             {/* Grid layout for scores */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {Object.entries(parseAnalysisResult(analysisResult).scores).map(([title, value]) => (
-                <div key={title} className="bg-gray-800 p-6 rounded-lg shadow-md">
-                  <h3 className="text-lg font-semibold mb-2">{title}</h3>
+                <div key={title} className="p-6 bg-gray-800 rounded-lg border border-gray-700">
+                  <h3 className="text-xl font-semibold text-white">{title}</h3>
                   <p className="text-gray-300">{value}</p>
                 </div>
               ))}
             </div>
-
-            {/* Strengths and Areas for Improvement */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
-              {parseAnalysisResult(analysisResult).strengths.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Strengths</h3>
-                  <ul className="list-disc ml-5 text-gray-300">
-                    {parseAnalysisResult(analysisResult).strengths.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-    
-              {parseAnalysisResult(analysisResult).areasForImprovement.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold my-2 text-white">Areas for Improvement</h3>
-                  <ul className="list-disc ml-5 text-gray-300">
-                    {parseAnalysisResult(analysisResult).areasForImprovement.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
+            {/* Strengths */}
+            {parseAnalysisResult(analysisResult).strengths.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-gray-300 mb-4">Strengths</h3>
+                <ul className="list-disc list-inside text-gray-300">
+                  {parseAnalysisResult(analysisResult).strengths.map((strength, index) => (
+                    <li key={index}>{strength}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {/* Areas for Improvement */}
+            {parseAnalysisResult(analysisResult).areasForImprovement.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-gray-300 mb-4">Areas for Improvement</h3>
+                <ul className="list-disc list-inside text-gray-300">
+                  {parseAnalysisResult(analysisResult).areasForImprovement.map((area, index) => (
+                    <li key={index}>{area}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {/* Additional Notes */}
             {parseAnalysisResult(analysisResult).additionalNotes.length > 0 && (
-              <div className="bg-gray-800 p-6 rounded-xl shadow-lg">
-                <h3 className="text-lg font-semibold mb-4">Additional Notes</h3>
-                <p className="text-gray-300">{parseAnalysisResult(analysisResult).additionalNotes.join(' ')}</p>
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-gray-300 mb-4">Additional Notes</h3>
+                <ul className="list-disc list-inside text-gray-300">
+                  {parseAnalysisResult(analysisResult).additionalNotes.map((note, index) => (
+                    <li key={index}>{note}</li>
+                  ))}
+                </ul>
               </div>
+            )}
+            {/* Invalid Resume */}
+            {parseAnalysisResult(analysisResult).invalidResume && (
+              <p className="text-red-600">The resume appears to be invalid or poorly formatted.</p>
             )}
           </div>
         )}
