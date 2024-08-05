@@ -88,6 +88,7 @@ const Resume = () => {
 const parseAnalysisResult = (result) => {
   try {
     // Parse the JSON response
+    console.log('Raw analysis result:', response.data.text);
     const parsedResult = JSON.parse(result);
 
     // Extract scores
