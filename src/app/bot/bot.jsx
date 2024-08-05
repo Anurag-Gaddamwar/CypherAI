@@ -55,58 +55,66 @@ function CypherAI() {
     };
   }, []);
 
-  const startRecognition = () => {
+const startRecognition = () => {
+  setLoading(true);
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    console.error('SpeechRecognition is not supported in this browser.');
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.onstart = () => {
+    setIsListening(true);
+    setIsMoving(true);
+    // `loadingIndex` should be set when starting recognition
+  };
+  recognition.onresult = (event) => {
+    const transcript = event.results[event.results.length - 1][0].transcript;
+    setMessages(prevMessages => [...prevMessages, { text: transcript, fromUser: true }]);
+    generateResponse(transcript, true); // Voice input, so isVoiceInput is true
+  };
+  recognition.onerror = (event) => {
+    console.error('Speech recognition error:', event.error);
+    setIsListening(false);
+    setIsMoving(false);
+    handleSpeechError();
+  };
+  recognition.onend = () => {
+    setIsListening(false);
+    setIsMoving(false);
+  };
+  recognitionRef.current = recognition;
+  recognition.start();
+};
+
+
+const handleMicClick = () => {
+  if (isListening) {
+    const recognition = recognitionRef.current;
+    recognition && recognition.stop();
+    setIsListening(false);
+    setIsMoving(false);
+    micIconRef.current.style.boxShadow = '';
+    synthRef.current && synthRef.current.cancel();
+    // Set loading to false when stopping recognition
+    setLoading(false);
+    setLoadingIndex(null); // Reset loadingIndex when stopping
+  } else {
+    if (synthRef.current && synthRef.current.speaking) {
+      synthRef.current.cancel();
+    }
+    // Set loading index when starting recognition
+    const newMessageIndex = messages.length;
     setLoading(true);
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      console.error('SpeechRecognition is not supported in this browser.');
-      return;
-    }
+    setLoadingIndex(newMessageIndex);
+    startRecognition();
+  }
+};
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.onstart = () => {
-      setIsListening(true);
-      setIsMoving(true);
-    };
-    recognition.onresult = (event) => {
-      const transcript = event.results[event.results.length - 1][0].transcript;
-      setMessages(prevMessages => [...prevMessages, { text: transcript, fromUser: true }]);
-      generateResponse(transcript, true); // Voice input, so isVoiceInput is true
-    };
-    
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
-      setIsMoving(false);
-      handleSpeechError();
-    };
-    recognition.onend = () => {
-      setIsListening(false);
-      setIsMoving(false);
-    };
-    recognitionRef.current = recognition;
-    recognition.start();
-  };
-
-  const handleMicClick = () => {
-    if (isListening) {
-      const recognition = recognitionRef.current;
-      recognition && recognition.stop();
-      setIsListening(false);
-      setLoading(true);
-      setIsMoving(false);
-      micIconRef.current.style.boxShadow = '';
-      synthRef.current && synthRef.current.cancel();
-    } else {
-      if (synthRef.current && synthRef.current.speaking) {
-        synthRef.current.cancel();
-      }
-      startRecognition();
-    }
-  };
 
   const generateResponse = async (currentQuery, isVoiceInput) => {
     setLoading(true);
