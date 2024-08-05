@@ -96,6 +96,7 @@ function CypherAI() {
       const recognition = recognitionRef.current;
       recognition && recognition.stop();
       setIsListening(false);
+      setLoading(true);
       setIsMoving(false);
       micIconRef.current.style.boxShadow = '';
       synthRef.current && synthRef.current.cancel();
