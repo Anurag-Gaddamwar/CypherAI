@@ -284,4 +284,8 @@ body {
   }
 }
 
+video.mirrored {
+  transform: scaleX(-1); /* Flip horizontally */
+}
+
 
