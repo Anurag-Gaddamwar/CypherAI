@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Mic from '@/app/components/Mic'; 
 import Navbar from '@/app/components/Navbar';
-import './bot.css'
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
@@ -294,11 +293,11 @@ const handleMicClick = () => {
     <div className="max-h-screen font-sans text-sm bg-black text-white flex flex-col">
       <Navbar/>
       <main className="flex-grow overflow-hidden flex flex-col">
-        <div className="flex-grow h-[80vh] sm:mx-10 max-h-[80vh] mb-[4rem] sm:max-h-[100vh] sm:mb-[4.3rem] sm:h-[100vh] overflow-y-hidden relative">
+        <div className="flex-grow h-[89.6vh] sm:mx-10 mb-[4rem] sm:max-h-[86vh] sm:mb-[4.3rem] sm:h-[89vh] overflow-y-hidden relative">
           <div className="bg-gradient-to-br from-midnight-blue to-black p-4 md:p-6">
             <h1 className="fixed z-20 mt-16 text-2xl md:text-2xl font-bold cursor-pointer text-white">CypherAI</h1>
           </div>
-          <div className="mt-32  absolute inset-0 overflow-y-auto flex flex-col custom-scrollbar" ref={messageContainerRef}>
+          <div className="mt-32 absolute inset-0 overflow-y-auto  flex flex-col custom-scrollbar" ref={messageContainerRef}>
             {messages.map((message, index) => (
               <div
                 key={index}
