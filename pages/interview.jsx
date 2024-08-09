@@ -113,7 +113,7 @@ const InterviewSimulation = () => {
   };
 
   return (
-    <div className="min-h-screen font-sans text-white flex flex-col">
+    <div className="max-h-screen font-sans text-sm bg-black text-white flex flex-col">
       <Navbar />
       <div className="container mx-auto mt-20 p-6 rounded-lg shadow-lg w-full max-w-4xl">
         {!showInterview ? (
@@ -142,12 +142,17 @@ const InterviewSimulation = () => {
               />
             </div>
 
-            <div className="flex flex-col items-center mb-8">
-              <button onClick={startRecording} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center space-x-2 mb-10">
-                <FaVideo className="text-xl" />
-                <span>Start Interview</span>
-              </button>
-            </div>
+        
+            <div className='flex flex-col items-center mb-8'>
+          <button onClick={startRecording}
+            className={`bg-gradient-to-r from-blue-500 items-center to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110`}
+  
+            
+          >
+            <FaVideo className="text-xl" />
+            Start Interview
+          </button>
+        </div>
           </>
         ) : (
           <>
