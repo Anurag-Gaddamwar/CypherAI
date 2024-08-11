@@ -13,11 +13,11 @@ const InterviewSimulation = () => {
   const [error, setError] = useState('');
   const [currentQuestion, setCurrentQuestion] = useState('');
   const [showInterview, setShowInterview] = useState(false);
+  const [jobRole, setJobRole] = useState('');
+  const [resume, setResume] = useState(null);
   const videoRef = useRef(null);
   const localStreamRef = useRef(null);
   const peerConnectionRef = useRef(null);
-  const [jobRole, setJobRole] = useState('');
-  const [techStack, setTechStack] = useState('');
 
   useEffect(() => {
     if (recording) {
@@ -54,6 +54,7 @@ const InterviewSimulation = () => {
         })
         .catch(err => {
           console.error('Error initializing WebRTC:', err);
+          setError('Failed to initialize video call. Please try again.');
         });
 
       // Handle errors
@@ -78,36 +79,48 @@ const InterviewSimulation = () => {
     };
   }, [recording]);
 
-  const startRecording = () => {
+  const startRecording = async () => {
     setRecording(true);
     setShowInterview(true);
     setError('');
-    axios.get(`${process.env.REACT_APP_API_URL}/get-question`)
-      .then(response => {
-        setCurrentQuestion(response.data.question);
-      })
-      .catch(err => {
-        console.error('Error fetching question:', err);
-      });
+    setLoading(true);
+
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-question`);
+      setCurrentQuestion(response.data.question);
+    } catch (err) {
+      console.error('Error fetching question:', err);
+      setError('Failed to fetch interview question. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     setRecording(false);
-    axios.post(`${process.env.REACT_APP_API_URL}/end-interview`)
-      .then(response => {
-        setFeedback(response.data.feedback);
-      })
-      .catch(error => {
-        console.error('Error ending interview:', error);
-      });
+    setLoading(true);
+    const formData = new FormData();
+    formData.append('resume', resume);
+
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/end-interview`, formData);
+      setFeedback(response.data.feedback);
+    } catch (error) {
+      console.error('Error ending interview:', error);
+      setError('Failed to end interview and retrieve feedback. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleJobRoleChange = (e) => {
     setJobRole(e.target.value);
   };
 
-  const handleTechStackChange = (e) => {
-    setTechStack(e.target.value);
+  const handleResumeChange = (e) => {
+    if (e.target.files[0]) {
+      setResume(e.target.files[0]);
+    }
   };
 
   return (
@@ -124,22 +137,25 @@ const InterviewSimulation = () => {
                 value={jobRole}
                 onChange={handleJobRoleChange}
                 placeholder="Enter job role"
-                className="w-full px-4 py-2 bg-[#151515] rounded-md text-white"
+                className="w-full px-4 py-2 bg-[#151515] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="mb-6">
-              <label className="block text-lg font-medium mb-2">Tech Stack <span className="font-thin">(Optional)</span></label>
+              <label className="block text-lg font-medium mb-2">Resume (Optional)</label>
               <input
-                type="text"
-                value={techStack}
-                onChange={handleTechStackChange}
-                placeholder="Enter tech stack"
-                className="w-full px-4 py-2 bg-[#151515] rounded-md text-white"
+                type="file"
+                accept=".jpg, .jpeg, .png, .pdf"
+                onChange={handleResumeChange}
+                className="w-full px-4 py-2 bg-[#151515] rounded-md text-white focus:outline-none"
               />
             </div>
             <div className='flex flex-col items-center mb-8'>
-              <button onClick={startRecording} disabled={!jobRole}
-                className="flex space-x-2 mb-10 bg-gradient-to-r from-blue-500 items-center to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110"
+              <button 
+                onClick={startRecording} 
+                disabled={!jobRole}
+                className={`flex space-x-2 mb-10 items-center text-white px-4 py-2 rounded-md transition transform duration-300 ${
+                  !jobRole ? 'bg-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-110'
+                }`}
               >
                 <FaVideo className="text-xl" />
                 <span>Start Interview</span>
@@ -148,26 +164,30 @@ const InterviewSimulation = () => {
           </>
         ) : (
           <>
-            {/* Interview section */}
             <div className="flex flex-col lg:flex-row lg:space-x-4 lg:space-y-0 space-y-4 mb-8">
-<div className="w-full h-32 overflow-auto hidden-scrollbar bg-[#151515] text-white mb-4 p-4 rounded-md border-[0.5px] border-[#151515] relative">
-  <div className="absolute inset-0 overflow-auto">
-    <p className="p-2">{currentQuestion || 'Waiting for question...'}</p>
-  </div>
-</div>
-
+              <div className="w-full h-32 overflow-auto hidden-scrollbar bg-[#151515] text-white mb-4 p-4 rounded-md border-[0.5px] border-[#151515] relative">
+                <div className="absolute inset-0 overflow-auto">
+                  <p className="p-2">{currentQuestion || 'Waiting for question...'}</p>
+                </div>
+              </div>
               <div className="flex-1 lg:w-1/2">
                 <video ref={videoRef} width="100%" autoPlay muted className="border-[0.5px] border-[#151515] rounded-md mirrored"></video>
               </div>
             </div>
             <div className="mt-4 flex space-x-4">
               {!recording ? (
-                <button onClick={startRecording} className="flex space-x-2 mb-10 bg-gradient-to-r from-blue-500 items-center to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110">
+                <button 
+                  onClick={startRecording} 
+                  className="flex space-x-2 mb-10 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110"
+                >
                   <FaVideo className="text-xl" />
-                  <span> Start Interview</span>
+                  <span>Start Interview</span>
                 </button>
               ) : (
-                <button onClick={stopRecording} className="bg-red-500 relative hover:bg-red-800 flex space-x-2 mb-10 items-center text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110">
+                <button 
+                  onClick={stopRecording} 
+                  className="bg-red-500 hover:bg-red-800 flex space-x-2 mb-10 items-center text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110"
+                >
                   <FaStop className="text-xl" />
                   <span>Stop Interview</span>
                 </button>
