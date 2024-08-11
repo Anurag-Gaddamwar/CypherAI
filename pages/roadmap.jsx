@@ -19,17 +19,14 @@ const Roadmap = () => {
     setHoveredSkill(skill);
   };
 
-    const handleGenerateRoadmap = async () => {
+  const handleGenerateRoadmap = async () => {
     setError('');
     setLoading(true);
     setAttempted(true);
     try {
-      console.log('Sending request to server with jobRole:', jobRole); // Debugging line
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/generate-roadmap`, {
         currentQuery: jobRole,
       });
-  
-      console.log('Server response:', response); // Debugging line
   
       if (response.data && response.data.text) {
         const roadmapText = response.data.text;
@@ -56,7 +53,7 @@ const Roadmap = () => {
         setError('No data received from the server.');
       }
     } catch (error) {
-      console.error('Error generating roadmap:', error.response ? error.response.data : error.message); // Debugging line
+      console.error('Error generating roadmap:', error.response ? error.response.data : error.message);
       setError('Failed to generate roadmap. Please check your input and try again.');
     } finally {
       setLoading(false);
@@ -67,7 +64,7 @@ const Roadmap = () => {
     <div className="min-h-screen font-sans text-sm bg-black text-white flex flex-col">
       <Navbar />
       <main className="mt-20 flex-grow p-6 w-full max-w-5xl mx-auto">
-        <h1 className="text-2xl md:text-4xl font-bold mb-8 text-center">
+        <h1 className="text-3xl md:text-4xl font-semibold mb-10 text-center">
           Unfold Your Developer Journey
         </h1>
         <div className="flex flex-col md:flex-row items-center justify-center mb-8 space-y-4 md:space-y-0 md:space-x-4">
@@ -79,14 +76,14 @@ const Roadmap = () => {
               placeholder="Enter your desired job role"
               className="px-4 py-2 bg-[#151515] rounded-md text-white w-full md:w-72 mb-3 md:mb-0"
             />
-            <div className='items-center flex relative justify-center'> 
-            <button
-              onClick={handleGenerateRoadmap}
-              className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-transform transform duration-300 hover:scale-105 shadow-lg hover:shadow-xl sm:max-w-48"
-              disabled={loading}
-            >
-              {loading ? 'Generating...' : 'Generate Roadmap'}
-            </button>
+            <div className="flex justify-center w-full md:w-auto">
+              <button
+                onClick={handleGenerateRoadmap}
+                className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-transform transform duration-300 hover:scale-105 shadow-lg hover:shadow-xl w-full max-w-xs md:max-w-xs"
+                disabled={loading}
+              >
+                {loading ? 'Generating...' : 'Generate Roadmap'}
+              </button>
             </div>
           </div>
         </div>
