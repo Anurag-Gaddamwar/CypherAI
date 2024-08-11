@@ -175,7 +175,7 @@ const Resume = () => {
         </div>
         {/* Display uploaded file name */}
         {uploadedFileName && (
-          <div className="mt-8 flex items-center justify-center bg-gray-800 rounded-2xl border-[0.1px] p-4">
+          <div className="mt-8 flex items-center justify-center bg-gray-900 rounded-2xl border-[0.1px] p-4">
             <FaFileAlt className="mr-2 text-white" />
             <p className="text-gray-300">Uploaded File: {uploadedFileName}</p>
           </div>
@@ -206,7 +206,7 @@ const Resume = () => {
             {/* Grid layout for scores */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {Object.entries(parseAnalysisResult(analysisResult).scores).map(([title, value]) => (
-                <div key={title} className="bg-gray-800 p-6 rounded-lg shadow-md">
+                <div key={title} className="bg-gray-900 p-6 rounded-lg shadow-md">
                   <h3 className="text-lg font-semibold mb-2">{title}</h3>
                   <p className="text-gray-300">{value}</p>
                 </div>
@@ -214,7 +214,7 @@ const Resume = () => {
             </div>
 
             {/* Strengths and Areas for Improvement */}
-            <div className="bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
+            <div className="bg-gray-900 p-6 rounded-xl shadow-lg mb-8">
               {parseAnalysisResult(analysisResult).strengths.length > 0 && (
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Strengths</h3>
@@ -240,7 +240,7 @@ const Resume = () => {
 
             {/* Additional Notes */}
             {parseAnalysisResult(analysisResult).additionalNotes.length > 0 && (
-              <div className="bg-gray-800 p-6 rounded-xl shadow-lg">
+              <div className="bg-gray-900 p-6 rounded-xl shadow-lg">
                 <h3 className="text-lg font-semibold mb-4">Additional Notes</h3>
                 <p className="text-gray-300">{parseAnalysisResult(analysisResult).additionalNotes.join(' ')}</p>
               </div>
