@@ -15,19 +15,18 @@ const InterviewSimulation = () => {
   const [showInterview, setShowInterview] = useState(false);
   const [jobRole, setJobRole] = useState('');
   const [resume, setResume] = useState(null);
+  const [interviewType, setInterviewType] = useState(''); // Added state for interview type
   const videoRef = useRef(null);
   const localStreamRef = useRef(null);
   const peerConnectionRef = useRef(null);
 
   useEffect(() => {
     if (recording) {
-      // Initialize WebRTC peer connection
       peerConnectionRef.current = new RTCPeerConnection();
       peerConnectionRef.current.ontrack = (event) => {
         // Handle incoming tracks
       };
 
-      // Get local stream and add to peer connection
       navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         .then(stream => {
           localStreamRef.current = stream;
@@ -36,20 +35,17 @@ const InterviewSimulation = () => {
             peerConnectionRef.current.addTrack(track, stream);
           });
 
-          // Create an offer and send to the server
           return peerConnectionRef.current.createOffer();
         })
         .then(offer => {
           return peerConnectionRef.current.setLocalDescription(offer);
         })
         .then(() => {
-          // Send the offer to the server
           return axios.post(`${process.env.REACT_APP_API_URL}/offer`, {
             sdp: peerConnectionRef.current.localDescription
           });
         })
         .then(response => {
-          // Set remote description from server
           return peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(response.data.sdp));
         })
         .catch(err => {
@@ -57,12 +53,10 @@ const InterviewSimulation = () => {
           setError('Failed to initialize video call. Please try again.');
         });
 
-      // Handle errors
       peerConnectionRef.current.onicecandidateerror = (event) => {
         console.error('ICE Candidate Error:', event);
       };
 
-      // Handle remote stream end
       peerConnectionRef.current.oniceconnectionstatechange = () => {
         if (peerConnectionRef.current.iceConnectionState === 'disconnected') {
           setError('Connection with AI has been lost.');
@@ -71,7 +65,6 @@ const InterviewSimulation = () => {
     }
 
     return () => {
-      // Cleanup on unmount
       if (peerConnectionRef.current) {
         peerConnectionRef.current.close();
         peerConnectionRef.current = null;
@@ -80,6 +73,11 @@ const InterviewSimulation = () => {
   }, [recording]);
 
   const startRecording = async () => {
+    if (!resume || !interviewType) {
+      setError('Please upload a resume and select the interview type.');
+      return;
+    }
+
     setRecording(true);
     setShowInterview(true);
     setError('');
@@ -101,6 +99,7 @@ const InterviewSimulation = () => {
     setLoading(true);
     const formData = new FormData();
     formData.append('resume', resume);
+    formData.append('interviewType', interviewType); // Include interview type in form data
 
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/end-interview`, formData);
@@ -123,6 +122,10 @@ const InterviewSimulation = () => {
     }
   };
 
+  const handleInterviewTypeChange = (e) => {
+    setInterviewType(e.target.value);
+  };
+
   return (
     <div className="max-h-screen font-sans text-sm bg-black text-white flex flex-col">
       <Navbar />
@@ -137,24 +140,37 @@ const InterviewSimulation = () => {
                 value={jobRole}
                 onChange={handleJobRoleChange}
                 placeholder="Enter job role"
-                className="w-full px-4 py-2 bg-[#151515] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-[#151515] rounded-md text-white"
               />
             </div>
             <div className="mb-6">
-              <label className="block text-lg font-medium mb-2">Resume (Optional)</label>
+              <label className="block text-lg font-medium mb-2">Resume</label>
               <input
                 type="file"
                 accept=".jpg, .jpeg, .png, .pdf"
                 onChange={handleResumeChange}
-                className="w-full px-4 py-2 bg-[#151515] rounded-md text-white focus:outline-none"
+                className="w-full px-4 py-2 bg-[#151515] rounded-md text-white"
+                required
               />
+            </div>
+            <div className="mb-6">
+              <label className="block text-lg font-medium mb-2">Interview Type</label>
+              <select
+                value={interviewType}
+                onChange={handleInterviewTypeChange}
+                className="w-full px-4 py-2 bg-[#151515] rounded-md text-white mb-10"
+              >
+                <option value="" disabled>Select interview type</option>
+                <option value="HR">HR</option>
+                <option value="Technical">Technical</option>
+              </select>
             </div>
             <div className='flex flex-col items-center mb-8'>
               <button 
                 onClick={startRecording} 
-                disabled={!jobRole}
+                disabled={!jobRole || !resume || !interviewType}
                 className={`flex space-x-2 mb-10 items-center text-white px-4 py-2 rounded-md transition transform duration-300 ${
-                  !jobRole ? 'bg-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-110'
+                  !jobRole || !resume || !interviewType ? 'bg-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-110'
                 }`}
               >
                 <FaVideo className="text-xl" />
@@ -164,17 +180,17 @@ const InterviewSimulation = () => {
           </>
         ) : (
           <>
-            <div className="flex flex-col lg:flex-row lg:space-x-4 lg:space-y-0 space-y-4 mb-8">
-              <div className="w-full h-32 overflow-auto hidden-scrollbar bg-[#151515] text-white mb-4 p-4 rounded-md border-[0.5px] border-[#151515] relative">
-                <div className="absolute inset-0 overflow-auto">
-                  <p className="p-2">{currentQuestion || 'Waiting for question...'}</p>
+            <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0 mb-8">
+              <div className="w-full lg:w-1/2 aspect-w-4 aspect-h-3 bg-[#151515] text-white p-4 rounded-md border-[0.5px] border-[#151515] relative">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <p className="p-2 text-center">{currentQuestion || 'Waiting for question...'}</p>
                 </div>
               </div>
-              <div className="flex-1 lg:w-1/2">
-                <video ref={videoRef} width="100%" autoPlay muted className="border-[0.5px] border-[#151515] rounded-md mirrored"></video>
+              <div className="w-full lg:w-1/2 aspect-w-4 aspect-h-3 flex items-center justify-center bg-[#151515] border-[0.5px] border-[#151515] rounded-md">
+                <video ref={videoRef} className="w-full h-full object-cover mirrored" autoPlay muted></video>
               </div>
             </div>
-            <div className="mt-4 flex space-x-4">
+            <div className="mt-4 flex flex-col items-center">
               {!recording ? (
                 <button 
                   onClick={startRecording} 
