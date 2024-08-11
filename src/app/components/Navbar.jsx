@@ -16,6 +16,12 @@ const Navbar = () => {
             <Link href="/interview">
               <p className="text-white hover:text-blue-300 transition-colors duration-300">Interview</p>
             </Link>
+            <Link href="/roadmap">
+              <p className="text-white hover:text-blue-300 transition-colors duration-300">Roadmap</p>
+            </Link>
+            <Link href="/profile"> 
+              <p className="text-white  hover:text-blue-300 transition-colors duration-500">Profile</p>
+            </Link>
           </div>
         </div>
       </div>
