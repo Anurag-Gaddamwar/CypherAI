@@ -9,7 +9,7 @@ const Roadmap = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [hoveredSkill, setHoveredSkill] = useState(null);
-  const [attempted, setAttempted] = useState(false); // New state to track user attempt
+  const [attempted, setAttempted] = useState(false);
 
   const handleInputChange = (e) => {
     setJobRole(e.target.value);
@@ -20,11 +20,11 @@ const Roadmap = () => {
   };
 
   const handleGenerateRoadmap = async () => {
-    setError(''); // Reset error state
-    setLoading(true); // Set loading state to true
-    setAttempted(true); // Mark that user has attempted to generate roadmap
+    setError('');
+    setLoading(true);
+    setAttempted(true);
     try {
-       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/generate-roadmap`, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/generate-roadmap`, {
         currentQuery: jobRole,
       });
 
@@ -48,7 +48,7 @@ const Roadmap = () => {
       console.error('Error generating roadmap:', error);
       setError('Failed to generate roadmap. Please check your input and try again.');
     } finally {
-      setLoading(false); // Set loading state to false after request
+      setLoading(false);
     }
   };
 
@@ -60,20 +60,24 @@ const Roadmap = () => {
           Unfold Your Developer Journey
         </h1>
         <div className="flex flex-col md:flex-row items-center justify-center mb-8 space-y-4 md:space-y-0 md:space-x-4">
-          <input
-            type="text"
-            value={jobRole}
-            onChange={handleInputChange}
-            placeholder="Enter your desired job role"
-            className="p-4 border border-gray-600 text-black rounded-lg w-full md:w-2/3 lg:w-1/2 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            onClick={handleGenerateRoadmap}
-            className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-transform transform duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
-            disabled={loading}
-          >
-            {loading ? 'Generating...' : 'Generate Roadmap'}
-          </button>
+          <div className="flex flex-col md:flex-row w-full md:w-auto space-y-4 md:space-y-0 md:space-x-4">
+            <input
+              type="text"
+              value={jobRole}
+              onChange={handleInputChange}
+              placeholder="Enter your desired job role"
+              className="px-4 py-2 bg-[#151515] rounded-md text-white w-full md:w-72 mb-3 md:mb-0"
+            />
+            <div className='items-center flex relative justify-center'> 
+            <button
+              onClick={handleGenerateRoadmap}
+              className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-transform transform duration-300 hover:scale-105 shadow-lg hover:shadow-xl sm:max-w-48"
+              disabled={loading}
+            >
+              {loading ? 'Generating...' : 'Generate Roadmap'}
+            </button>
+            </div>
+          </div>
         </div>
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         {attempted && elements.length === 0 && !loading && !error && (
@@ -85,13 +89,13 @@ const Roadmap = () => {
               {elements.map((skill, index) => (
                 <div
                   key={index}
-                  className={`bg-gray-800 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 ${hoveredSkill === skill ? 'bg-gray-700' : ''}`}
+                  className={`bg-gray-900 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 ${hoveredSkill === skill ? 'bg-gray-700' : ''}`}
                   onMouseOver={() => handleSkillHover(skill)}
                   onMouseOut={() => handleSkillHover(null)}
                   role="listitem"
                   aria-label={`Skill: ${skill.label}, Days: ${skill.days}`}
                 >
-                  <h2 className="text-xl font-bold mb-2">{skill.label}</h2>
+                  <h2 className="text-lg font-bold mb-2">{skill.label}</h2>
                   <p className="text-sm text-gray-400">Days: {skill.days}</p>
                 </div>
               ))}
