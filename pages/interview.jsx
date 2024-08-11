@@ -12,7 +12,7 @@ const InterviewSimulation = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentQuestion, setCurrentQuestion] = useState('');
-  const [showInterview, setShowInterview] = useState(false); // State to control interview section visibility
+  const [showInterview, setShowInterview] = useState(false);
   const videoRef = useRef(null);
   const localStreamRef = useRef(null);
   const peerConnectionRef = useRef(null);
@@ -80,9 +80,8 @@ const InterviewSimulation = () => {
 
   const startRecording = () => {
     setRecording(true);
-    setShowInterview(true); // Show interview section
+    setShowInterview(true);
     setError('');
-    // Fetch initial question from server
     axios.get(`${process.env.REACT_APP_API_URL}/get-question`)
       .then(response => {
         setCurrentQuestion(response.data.question);
@@ -94,7 +93,6 @@ const InterviewSimulation = () => {
 
   const stopRecording = () => {
     setRecording(false);
-    // Notify the server to end the interview
     axios.post(`${process.env.REACT_APP_API_URL}/end-interview`)
       .then(response => {
         setFeedback(response.data.feedback);
@@ -118,8 +116,7 @@ const InterviewSimulation = () => {
       <div className="container mx-auto mt-20 p-6 rounded-lg shadow-lg w-full max-w-4xl">
         {!showInterview ? (
           <>
-            <h1 className="text-3xl font-semibold mb-6 text-center">Interview Simulation</h1>
-            
+            <h1 className="text-3xl font-semibold mb-20">Interview Simulation</h1>
             <div className="mb-6">
               <label className="block text-lg font-medium mb-2">Job Role</label>
               <input
@@ -130,9 +127,8 @@ const InterviewSimulation = () => {
                 className="w-full px-4 py-2 bg-[#151515] rounded-md text-white"
               />
             </div>
-
             <div className="mb-6">
-              <label className="block text-lg font-medium mb-2">Tech Stack (Optional)</label>
+              <label className="block text-lg font-medium mb-2">Tech Stack <span className="font-thin">(Optional)</span></label>
               <input
                 type="text"
                 value={techStack}
@@ -141,47 +137,48 @@ const InterviewSimulation = () => {
                 className="w-full px-4 py-2 bg-[#151515] rounded-md text-white"
               />
             </div>
-
-        
             <div className='flex flex-col items-center mb-8'>
-          <button onClick={startRecording}
-            className={`bg-gradient-to-r from-blue-500 items-center to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110`}
-  
-            
-          >
-            <FaVideo className="text-xl" />
-            Start Interview
-          </button>
-        </div>
+              <button onClick={startRecording} disabled={!jobRole}
+                className="flex space-x-2 mb-10 bg-gradient-to-r from-blue-500 items-center to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110"
+              >
+                <FaVideo className="text-xl" />
+                <span>Start Interview</span>
+              </button>
+            </div>
           </>
         ) : (
           <>
             {/* Interview section */}
-            <div className="flex flex-col items-center mb-8">
-              <div className="w-full h-32 overflow-y-scroll bg-[#151515] text-white mb-4 p-4 rounded-md border-[0.5px] border-[#151515]">
-                <p className="text-lg">{currentQuestion || 'Waiting for question...'}</p>
+            <div className="flex flex-col lg:flex-row lg:space-x-4 lg:space-y-0 space-y-4 mb-8">
+<div className="w-full h-32 overflow-auto hidden-scrollbar bg-[#151515] text-white mb-4 p-4 rounded-md border-[0.5px] border-[#151515] relative">
+  <div className="absolute inset-0 overflow-auto">
+    <p className="p-2">{currentQuestion || 'Waiting for question...'}</p>
+  </div>
+</div>
+
+              <div className="flex-1 lg:w-1/2">
+                <video ref={videoRef} width="100%" autoPlay muted className="border-[0.5px] border-[#151515] rounded-md mirrored"></video>
               </div>
-              <video ref={videoRef} width="640" height="480" autoPlay muted className="border-[0.5px] border-[#151515] rounded-md mirrored"></video>
-              <div className="mt-4 flex space-x-4">
-                {!recording ? (
-                  <button onClick={startRecording} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center space-x-2 mb-10">
-                    <FaVideo className="text-xl" />
-                    <span>Start Interview</span>
-                  </button>
-                ) : (
-                  <button onClick={stopRecording} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md flex items-center space-x-2 mb-10">
-                    <FaStop className="text-xl" />
-                    <span>Stop Interview</span>
-                  </button>
-                )}
-              </div>
-              {error && (
-                <div className="mt-4 text-red-500 flex items-center space-x-2">
-                  <AiOutlineWarning className="text-xl" />
-                  <span>{error}</span>
-                </div>
+            </div>
+            <div className="mt-4 flex space-x-4">
+              {!recording ? (
+                <button onClick={startRecording} className="flex space-x-2 mb-10 bg-gradient-to-r from-blue-500 items-center to-purple-600 text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110">
+                  <FaVideo className="text-xl" />
+                  <span> Start Interview</span>
+                </button>
+              ) : (
+                <button onClick={stopRecording} className="bg-red-500 relative hover:bg-red-800 flex space-x-2 mb-10 items-center text-white px-4 py-2 rounded-md transition transform duration-300 hover:scale-110">
+                  <FaStop className="text-xl" />
+                  <span>Stop Interview</span>
+                </button>
               )}
             </div>
+            {error && (
+              <div className="mt-4 text-red-500 flex items-center mx-auto space-x-2">
+                <AiOutlineWarning className="text-xl" />
+                <span>{error}</span>
+              </div>
+            )}
           </>
         )}
 
