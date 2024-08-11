@@ -24,7 +24,7 @@ const Roadmap = () => {
     setLoading(true); // Set loading state to true
     setAttempted(true); // Mark that user has attempted to generate roadmap
     try {
-      const response = await axios.post('http://localhost:5001/generate-roadmap', {
+       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/generate-roadmap`, {
         currentQuery: jobRole,
       });
 
