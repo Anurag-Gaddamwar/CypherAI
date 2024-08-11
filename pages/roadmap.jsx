@@ -19,33 +19,44 @@ const Roadmap = () => {
     setHoveredSkill(skill);
   };
 
-  const handleGenerateRoadmap = async () => {
+    const handleGenerateRoadmap = async () => {
     setError('');
     setLoading(true);
     setAttempted(true);
     try {
+      console.log('Sending request to server with jobRole:', jobRole); // Debugging line
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/generate-roadmap`, {
         currentQuery: jobRole,
       });
-
-      if (response.data.text) {
+  
+      console.log('Server response:', response); // Debugging line
+  
+      if (response.data && response.data.text) {
         const roadmapText = response.data.text;
-        const skillLines = roadmapText.split('\n').filter(line => line.trim());
-        const skills = [];
-
-        skillLines.forEach(line => {
-          const [skill, days] = line.split(':');
-          const skillName = skill.replace(/\*\*/g, '').trim();
-          const estimatedDays = days.replace(/\*\*/g, '').trim();
-          skills.push({ label: skillName, days: estimatedDays });
-        });
-
-        setElements(skills);
+        if (typeof roadmapText === 'string') {
+          const skillLines = roadmapText.split('\n').filter(line => line.trim());
+          const skills = [];
+  
+          skillLines.forEach(line => {
+            if (line.includes(':')) {
+              const [skill, days] = line.split(':');
+              const skillName = skill ? skill.replace(/\*\*/g, '').trim() : '';
+              const estimatedDays = days ? days.replace(/\*\*/g, '').trim() : '';
+              if (skillName && estimatedDays) {
+                skills.push({ label: skillName, days: estimatedDays });
+              }
+            }
+          });
+  
+          setElements(skills);
+        } else {
+          setError('Invalid data format received from the server.');
+        }
       } else {
         setError('No data received from the server.');
       }
     } catch (error) {
-      console.error('Error generating roadmap:', error);
+      console.error('Error generating roadmap:', error.response ? error.response.data : error.message); // Debugging line
       setError('Failed to generate roadmap. Please check your input and try again.');
     } finally {
       setLoading(false);
