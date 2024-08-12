@@ -277,7 +277,7 @@ const InterviewSimulation = () => {
   <div className="flex flex-col items-center">
     <h2 className="text-xl font-semibold mb-4">Recording Interview</h2>
     <div className="relative w-full max-w-md h-72 bg-gray-800 rounded-lg overflow-hidden">
-      <video ref={videoRef} autoPlay className="w-full h-full object-cover" />
+      <video ref={videoRef} autoPlay className="w-full h-full object-cover mirrored" />
       <div className="absolute bottom-4 left-4 flex items-center space-x-2">
         <FaVideo className="text-red-600" />
         <span className="text-white">Recording...</span>
