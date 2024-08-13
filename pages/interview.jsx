@@ -346,7 +346,7 @@ const InterviewSimulation = () => {
           )}
 
           {feedback && !loading && (
-            <div className="my-6 p-4 bg-[#1e1e1e] rounded-lg">
+            <div className="my-6 p-4 bg-gray-900 rounded-lg">
               <h2 className="text-2xl font-semibold mb-2">Feedback</h2>
               <div className="mb-4">
                 <h3 className="text-lg font-semibold">Overall Performance:</h3>
