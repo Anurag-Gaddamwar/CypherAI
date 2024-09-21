@@ -1,40 +1,42 @@
 'use client';
-import React, { useState, useEffect, useRef, useCallback, useMemo, Suspense } from 'react';
-import dynamic from 'next/dynamic';
+import React, { useState, useEffect, useRef } from 'react';
+import Mic from '@/app/components/Mic'; 
 import Navbar from '@/app/components/Navbar';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
-const Mic = dynamic(() => import('@/app/components/Mic'), { suspense: true });
-
 function CypherAI() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const isMoving = useRef(false);
-  const isListening = useRef(false);
+  const [isMoving, setIsMoving] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const micIconRef = useRef(null);
   const recognitionRef = useRef(null);
   const synthRef = useRef(null);
   const messageContainerRef = useRef(null);
-  const [loadingIndex, setLoadingIndex] = useState(null);
+  const [isLoading, setLoading] = useState(false);
+  const [loadingIndex, setLoadingIndex] = useState(null);  
+  const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
 
-  const handleSendClick = useCallback(() => {
+  const handleSendClick = () => {
     if (input.trim() !== '') {
       const newMessageIndex = messages.length;
       setMessages(prevMessages => [...prevMessages, { text: input, fromUser: true }]);
       setInput('');
-      setLoadingIndex(newMessageIndex);
-      generateResponse(input, false);
+      setLoading(true);
+      setLoadingIndex(newMessageIndex); // Set the index for the loading placeholder
+      setIsAwaitingResponse(true);
+      generateResponse(input, false); // Text input, so isVoiceInput is false
     }
-  }, [input, messages]);
+  };
 
-  const handleKeyDown = useCallback((event) => {
+  const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       handleSendClick();
     }
-  }, [handleSendClick]);
+  };
 
   useEffect(() => {
     if (messageContainerRef.current) {
@@ -42,60 +44,79 @@ function CypherAI() {
     }
   }, [messages]);
 
-  const startRecognition = useCallback(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      console.error('SpeechRecognition is not supported in this browser.');
-      return;
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setIsMoving(false);
+    }, 10000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+const startRecognition = () => {
+  setLoading(true);
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    console.error('SpeechRecognition is not supported in this browser.');
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.onstart = () => {
+    setIsListening(true);
+    setIsMoving(true);
+    // `loadingIndex` should be set when starting recognition
+  };
+  recognition.onresult = (event) => {
+    const transcript = event.results[event.results.length - 1][0].transcript;
+    setMessages(prevMessages => [...prevMessages, { text: transcript, fromUser: true }]);
+    generateResponse(transcript, true); // Voice input, so isVoiceInput is true
+  };
+  recognition.onerror = (event) => {
+    console.error('Speech recognition error:', event.error);
+    setIsListening(false);
+    setIsMoving(false);
+    handleSpeechError();
+  };
+  recognition.onend = () => {
+    setIsListening(false);
+    setIsMoving(false);
+  };
+  recognitionRef.current = recognition;
+  recognition.start();
+};
+
+
+const handleMicClick = () => {
+  if (isListening) {
+    const recognition = recognitionRef.current;
+    recognition && recognition.stop();
+    setIsListening(false);
+    setIsMoving(false);
+    micIconRef.current.style.boxShadow = '';
+    synthRef.current && synthRef.current.cancel();
+    // Set loading to false when stopping recognition
+    setLoading(false);
+    setLoadingIndex(null); // Reset loadingIndex when stopping
+  } else {
+    if (synthRef.current && synthRef.current.speaking) {
+      synthRef.current.cancel();
     }
+    // Set loading index when starting recognition
+    const newMessageIndex = messages.length;
+    setLoading(true);
+    setLoadingIndex(newMessageIndex);
+    startRecognition();
+  }
+};
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.onstart = () => {
-      isListening.current = true;
-      isMoving.current = true;
-      setLoadingIndex(messages.length);
-    };
-    recognition.onresult = (event) => {
-      const transcript = event.results[event.results.length - 1][0].transcript;
-      setMessages(prevMessages => [...prevMessages, { text: transcript, fromUser: true }]);
-      generateResponse(transcript, true);
-    };
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
-      isListening.current = false;
-      isMoving.current = false;
-      handleSpeechError();
-    };
-    recognition.onend = () => {
-      isListening.current = false;
-      isMoving.current = false;
-    };
-    recognitionRef.current = recognition;
-    recognition.start();
-  }, [messages]);
 
-  const handleMicClick = useCallback(() => {
-    if (isListening.current) {
-      const recognition = recognitionRef.current;
-      recognition && recognition.stop();
-      isListening.current = false;
-      isMoving.current = false;
-      micIconRef.current.style.boxShadow = '';
-      synthRef.current && synthRef.current.cancel();
-      setLoadingIndex(null);
-    } else {
-      if (synthRef.current && synthRef.current.speaking) {
-        synthRef.current.cancel();
-      }
-      setLoadingIndex(messages.length);
-      startRecognition();
-    }
-  }, [startRecognition, messages]);
-
-  const generateResponse = useCallback(async (currentQuery, isVoiceInput) => {
+  const generateResponse = async (currentQuery, isVoiceInput) => {
+    setLoading(true);
     try {
       const prevConversation = messages.slice(-10).map(message => message.text).join('\n');
 
@@ -105,8 +126,8 @@ function CypherAI() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          currentQuery,
-          prevConversation,
+          currentQuery,       // Send the new user input
+          prevConversation,  // Send the conversation history
         }),
       });
 
@@ -119,6 +140,7 @@ function CypherAI() {
       if (data.text) {
         const responseText = data.text.trim();
         setMessages(prevMessages => [...prevMessages, { text: responseText, fromUser: false }]);
+        setLoading(false);
         setLoadingIndex(null);
         if (isVoiceInput) {
           speak(responseText);
@@ -130,10 +152,11 @@ function CypherAI() {
       console.error('Error generating response:', error);
       handleResponseError('An error occurred while generating a response.', isVoiceInput);
     } finally {
+      setLoading(false);
       setLoadingIndex(null);
+      setIsAwaitingResponse(false);
     }
-  }, [messages]);
-
+  };
 
   useEffect(() => {
     const handleBeforeUnload = () => {
