@@ -4,10 +4,10 @@ import Navbar from '../src/app/components/Navbar';
 
 const profile = () => {
   return (
-    <div className="max-h-screen font-sans text-sm bg-black text-white flex flex-col">
+    <Fragment>
         <Navbar />
         
-    </div>
+    </Fragment>
   )
 }
 
