@@ -77,14 +77,13 @@ const Roadmap = () => {
               className="px-4 py-2 bg-[#151515] rounded-md text-white w-full md:w-72 mb-3 md:mb-0"
             />
             <div className="flex justify-center w-full md:w-auto">
-<button
-  onClick={handleGenerateRoadmap}
-  className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-transform transform duration-300 hover:scale-105 shadow-lg hover:shadow-xl w-full max-w-xs md:max-w-xs"
-  disabled={loading || jobRole.trim() === ''} // Disable button if loading or jobRole is empty
->
-  {loading ? 'Generating...' : 'Generate Roadmap'}
-</button>
-
+              <button
+                onClick={handleGenerateRoadmap}
+                className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-transform transform duration-300 hover:scale-105 shadow-lg hover:shadow-xl w-full max-w-xs md:max-w-xs"
+                disabled={loading}
+              >
+                {loading ? 'Generating...' : 'Generate Roadmap'}
+              </button>
             </div>
           </div>
         </div>
