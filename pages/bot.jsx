@@ -46,6 +46,27 @@ function CypherAI() {
   }, [messages]);
 
   useEffect(() => {
+    const wakeUpAPI = async () => {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-content`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            currentQuery: "Wake up!",
+            prevConversation: "",
+          }),
+        });
+      } catch (error) {
+        console.log("Error waking up API:", error);
+      }
+    };
+
+    wakeUpAPI();
+  }, []);
+
+  useEffect(() => {
     const timeoutId = setTimeout(() => {
       setIsMoving(false);
     }, 10000);
