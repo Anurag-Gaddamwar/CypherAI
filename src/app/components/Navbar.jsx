@@ -7,7 +7,7 @@ const Navbar = () => {
       <div className="mx-auto">
         <div className="flex justify-between items-center">
           <div className="flex space-x-4">
-            <Link href="/">
+            <Link href="/bot">
               <p className="hover:text-blue-300 transition-colors duration-300">AI</p>
             </Link>
             <Link href="/resume">

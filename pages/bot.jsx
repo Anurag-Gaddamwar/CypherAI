@@ -4,6 +4,7 @@ import Mic from '@/app/components/Mic';
 import Navbar from '@/app/components/Navbar';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import '@/app/globals.css';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
 function CypherAI() {

@@ -1,5 +1,5 @@
 
-import CypherAI from "./bot/bot";
+import CypherAI from "../../pages/bot";
 
 export default function Home() {
 
