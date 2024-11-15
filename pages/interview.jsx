@@ -33,12 +33,12 @@ const InterviewSimulation = () => {
                 hasEarphones = true;
               }
             });
-  
+
             const audioConstraints = {
               echoCancellation: !hasEarphones,
               audioSuppression: !hasEarphones,
             };
-  
+
             navigator.mediaDevices.getUserMedia({
               video: true,
               audio: audioConstraints
@@ -53,9 +53,9 @@ const InterviewSimulation = () => {
               console.error('Error accessing media devices:', err);
               setError('Failed to access media devices. Please try again.');
             });
-  
+
             setupSpeechRecognition();
-  
+
             if (questions.length > 0 && currentQuestionIndex === 0) {
               speakQuestion(questions[currentQuestionIndex]);
             }
@@ -68,14 +68,12 @@ const InterviewSimulation = () => {
     } else {
       stopMediaStream();
     }
-  
+
     // Cleanup function to stop media stream when component unmounts or recording stops
     return () => {
       stopMediaStream();
     };
   }, [recording, questions, currentQuestionIndex]);
-  
-  
 
   const stopMediaStream = () => {
     if (videoRef.current && videoRef.current.stream) {
@@ -86,7 +84,6 @@ const InterviewSimulation = () => {
       videoRef.current.stream = null;
     }
   };
-  
 
   const startRecording = async () => {
     if (!resume || !interviewType || !jobRole) {
@@ -124,21 +121,21 @@ const InterviewSimulation = () => {
       setError('Speech Recognition API is not supported in this browser.');
       return;
     }
-  
-    recognition.lang = 'en-US';
-    recognition.interimResults = true;
-    recognition.continuous = true;
+
+    recognition.lang = 'en-US'; // Make sure the language is set to US English for best accuracy
+    recognition.interimResults = true; // Get partial results for better feedback
+    recognition.continuous = true; // Keep listening until stopped
     
     recognition.onresult = (event) => {
       const results = event.results;
       const latestResult = results[results.length - 1];
-    
+
       if (latestResult.isFinal) {
         const resultTranscript = latestResult[0].transcript;
         console.log('Transcript:', resultTranscript);
         clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(nextQuestion, 4000);
-    
+
         if (questions[currentQuestionIndex]) {
           setAnswers(prevAnswers => ({
             ...prevAnswers,
@@ -155,10 +152,15 @@ const InterviewSimulation = () => {
       setError('Speech recognition error. Please try again.');
       recognition.stop();
     };
-    
+
+    recognition.onend = () => {
+      recognition.start();  // Restart recognition if it ends
+    };
+
     recognitionRef.current = recognition;
+    recognition.start(); // Start listening immediately
   };
-  
+
   const speakQuestion = (question) => {
     console.log('Speaking Question:', question);
     
@@ -186,12 +188,12 @@ const InterviewSimulation = () => {
     
     speechSynthesis.speak(utterance);
   };
-  
+
   const nextQuestion = () => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
     }
-  
+
     setCurrentQuestionIndex(prevIndex => {
       const nextIndex = prevIndex + 1;
       if (nextIndex < questions.length) {
@@ -201,14 +203,14 @@ const InterviewSimulation = () => {
       } else {
         setRecording(false);
         setLoading(true); // Start loading when stopping recording
-  
+
         if (recognitionRef.current) {
           recognitionRef.current.stop();
         }
-  
+
         speechSynthesis.cancel();
         stopMediaStream();
-  
+
         setTimeout(async () => {
           try {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/get-feedback`, { answers });
@@ -222,7 +224,7 @@ const InterviewSimulation = () => {
             setLoading(false); // Stop loading when feedback is received
           }
         }, 2000); // Adjust the timeout if necessary
-  
+
         return prevIndex;
       }
     });
@@ -248,15 +250,12 @@ const InterviewSimulation = () => {
     const specificFeedbackPattern = /(?<=\*\*Specific Feedback:\*\*).+/s;
 
     feedbackSections.overallPerformance = feedbackText.match(overallPerformancePattern)?.[0]?.trim() || '';
-    feedbackSections.suggestions = feedbackText.match(suggestionsPattern)?.[0]?.trim().split('\n').filter(line => line) || [];
+    feedbackSections.suggestions = feedbackText.match(suggestionsPattern)?.[0]?.trim().replace(/^\*\*Suggestions for Improvement:\*\*/g, '') || '';
     feedbackSections.specificFeedback = feedbackText.match(specificFeedbackPattern)?.[0]?.trim() || '';
 
     return feedbackSections;
   };
 
-  const handleJobRoleChange = (e) => setJobRole(e.target.value);
-  const handleResumeChange = (e) => setResume(e.target.files[0]);
-  const handleInterviewTypeChange = (e) => setInterviewType(e.target.value);
 
   return (
     <div className="min-h-screen font-sans text-sm bg-black text-white flex flex-col mb-10">
