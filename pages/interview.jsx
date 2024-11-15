@@ -380,6 +380,3 @@ const InterviewSimulation = () => {
 };
 
 export default InterviewSimulation;
-
-
-here the speech recognition is working very poorly, can u please make sure that it works well, I mean it should capture every single word precisely, you may use any diffn approach for speech recognition doesnt matter
