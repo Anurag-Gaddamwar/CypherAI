@@ -275,4 +275,90 @@ video.mirrored {
   transform: scaleX(-1); /* Flip horizontally */
 }
 
+/* globals.css */
+.road {
+  background: linear-gradient(to bottom, #000, #333);
+  position: relative;
+  padding: 20px;
+  border-radius: 15px;
+  overflow: hidden;
+}
+.road-line {
+  background: repeating-linear-gradient(
+    to bottom,
+    #ffcc00,
+    #ffcc00 10px,
+    #333 10px,
+    #333 20px
+  );
+}
 
+.info-box{
+  z-index:3;
+}
+
+.roadmap-path {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.roadmap-stop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.roadmap-stop.left {
+  align-items: flex-start;
+}
+
+.roadmap-stop.right {
+  align-items: flex-end;
+}
+
+.skill-box {
+  background-color: #4c4c4c;
+  padding: 15px 20px;
+  border-radius: 6px;
+  text-align: center;
+  color: white;
+  width: 150px;
+  margin-bottom: 20px;
+}
+
+.skill-name {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.days-required {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.road-segment {
+  width: 2px;
+  height: 50px;
+  background-color: #444;
+  position: absolute;
+  left: 50%;
+  top: -20px;
+  transform: translateX(-50%);
+}
+
+.roadline {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 100%;
+  background-color: #ffcb00;
+  border-radius: 50%;
+}
