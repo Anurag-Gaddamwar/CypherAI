@@ -45,26 +45,6 @@ function CypherAI() {
     }
   }, [messages]);
 
-  useEffect(() => {
-    const wakeUpAPI = async () => {
-      try {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-content`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            currentQuery: "Wake up!",
-            prevConversation: "",
-          }),
-        });
-      } catch (error) {
-        console.log("Error waking up API:", error);
-      }
-    };
-
-    wakeUpAPI();
-  }, []);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -141,8 +121,8 @@ const handleMicClick = () => {
     setLoading(true);
     try {
       const prevConversation = messages.slice(-10).map(message => message.text).join('\n');
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-content`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+      const response = await fetch(`${apiUrl}/generate-content`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -312,7 +292,7 @@ const handleMicClick = () => {
   }, [messages]);
 
   return (
-    <div className="max-h-screen font-sans text-sm bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       <Navbar/>
       <main className="flex-grow overflow-hidden flex flex-col">
         <div className="flex-grow h-[89.6vh] sm:mx-10 mb-[4rem] sm:max-h-[86vh] sm:mb-[4.3rem] sm:h-[89vh] overflow-y-hidden relative">
