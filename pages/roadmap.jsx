@@ -2,116 +2,124 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import '../src/app/globals.css';
 import Navbar from '../src/app/components/Navbar';
+import { FaSpinner } from 'react-icons/fa';
 
 const Roadmap = () => {
   const [jobRole, setJobRole] = useState('');
   const [elements, setElements] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [hoveredSkill, setHoveredSkill] = useState(null);
-  const [attempted, setAttempted] = useState(false);
 
   const handleInputChange = (e) => {
     setJobRole(e.target.value);
   };
 
-  const handleSkillHover = (skill) => {
-    setHoveredSkill(skill);
-  };
-
   const handleGenerateRoadmap = async () => {
     setError('');
     setLoading(true);
-    setAttempted(true);
+
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/generate-roadmap`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const response = await axios.post(`${apiUrl}/generate-roadmap`, {
         currentQuery: jobRole,
       });
-  
+
       if (response.data && response.data.text) {
         const roadmapText = response.data.text;
-        if (typeof roadmapText === 'string') {
-          const skillLines = roadmapText.split('\n').filter(line => line.trim());
-          const skills = [];
-  
-          skillLines.forEach(line => {
-            if (line.includes(':')) {
-              const [skill, days] = line.split(':');
-              const skillName = skill ? skill.replace(/\*\*/g, '').trim() : '';
-              const estimatedDays = days ? days.replace(/\*\*/g, '').trim() : '';
-              if (skillName && estimatedDays) {
-                skills.push({ label: skillName, days: estimatedDays });
-              }
-            }
+        const skills = roadmapText
+          .split('\n')
+          .filter((line) => line.includes(':'))
+          .map((line) => {
+            const [label, days] = line.split(':');
+            return { label: label.trim(), days: parseInt(days.trim().replace(/\D/g, ''), 10) };
           });
-  
-          setElements(skills);
-        } else {
-          setError('Invalid data format received from the server.');
-        }
+        setElements(skills);
       } else {
-        setError('No data received from the server.');
+        setError('No roadmap data found.');
       }
-    } catch (error) {
-      console.error('Error generating roadmap:', error.response ? error.response.data : error.message);
-      setError('Failed to generate roadmap. Please check your input and try again.');
+    } catch (err) {
+      setError('Failed to generate roadmap. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleReset = () => {
+    setJobRole('');
+    setElements([]);
+    setError('');
+  };
+
   return (
-    <div className="min-h-screen font-sans text-sm bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       <Navbar />
-      <main className="mt-20 flex-grow p-6 w-full max-w-5xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-semibold mb-10 text-center">
-          Unfold Your Developer Journey
-        </h1>
-        <div className="flex flex-col md:flex-row items-center justify-center mb-8 space-y-4 md:space-y-0 md:space-x-4">
-          <div className="flex flex-col md:flex-row w-full md:w-auto space-y-4 md:space-y-0 md:space-x-4">
+      {elements.length === 0 ? (
+        <div className="mx-auto mt-20 p-6 max-w-4xl w-full flex flex-col">
+          <h1 className="text-3xl md:text-4xl font-semibold mb-10 text-center">
+            Embark on Your Career Roadmap
+          </h1>
+          <div className="flex flex-col items-center mb-8 space-y-4">
             <input
               type="text"
               value={jobRole}
               onChange={handleInputChange}
               placeholder="Enter your desired job role"
-              className="px-4 py-2 bg-[#151515] rounded-md text-white w-full md:w-72 mb-3 md:mb-0"
+              className="w-full px-4 py-2 bg-gray-800 shadow-lg rounded-md text-gray-400"
             />
-            <div className="flex justify-center w-full md:w-auto">
-              <button
-                onClick={handleGenerateRoadmap}
-                className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-transform transform duration-300 hover:scale-105 shadow-lg hover:shadow-xl w-full max-w-xs md:max-w-xs"
-                disabled={loading}
-              >
-                {loading ? 'Generating...' : 'Generate Roadmap'}
-              </button>
-            </div>
+            <button
+              onClick={handleGenerateRoadmap}
+              disabled={!jobRole || loading}
+              className={`px-6 py-2 text-lg rounded-md bg-blue-600 hover:bg-blue-700 transition duration-200 ${
+                (!jobRole || loading) ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {loading ? <FaSpinner className="animate-spin text-2xl" /> : 'Generate Roadmap'}
+            </button>
           </div>
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         </div>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        {attempted && elements.length === 0 && !loading && !error && (
-          <p className="text-center text-gray-400">No skills available. Please try a different job role.</p>
-        )}
-        <div className="flex-grow rounded-lg overflow-y-auto p-4">
-          {elements.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {elements.map((skill, index) => (
+      ) : (
+        <div className="mt-20 mx-auto max-w-5xl w-full bg-gray-900 rounded-md">
+          <div className="road flex flex-col items-center relative">
+            <div className="road-line bg-gray-600 w-2 rounded-md h-full absolute left-1/2 transform -translate-x-1/2"></div>
+            {elements.map((skill, index) => (
+              <div
+                key={index}
+                className={`road-stop flex items-center mb-12 ${
+                  index % 2 === 0 ? 'self-start' : 'self-end'
+                }`}
+              >
                 <div
-                  key={index}
-                  className={`bg-gray-900 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 ${hoveredSkill === skill ? 'bg-gray-700' : ''}`}
-                  onMouseOver={() => handleSkillHover(skill)}
-                  onMouseOut={() => handleSkillHover(null)}
-                  role="listitem"
-                  aria-label={`Skill: ${skill.label}, Days: ${skill.days}`}
+                  className={`info-box text-base text-thin bg-gray-800 text-white rounded-md px-6 py-4 shadow-md w-48 ml-6 text-justified
+                  }`}
                 >
-                  <h2 className="text-lg font-bold mb-2">{skill.label}</h2>
-                  <p className="text-sm text-gray-400">Days: {skill.days}</p>
+                  <p className="font-bold">{skill.label}</p>
+                  <p className="bg-gray-700 text-center border m-1 p-2 rounded-xl">{skill.days} days</p>
                 </div>
-              ))}
-            </div>
-          )}
+                <div
+                  className={`marker w-10 h-10 bg-yellow-500 rounded-full shadow-lg flex items-center justify-center text-black font-bold z-10`}
+                >
+                  {index + 1}
+                </div>
+              </div>
+            ))}
+          </div>
+          
         </div>
-      </main>
+        
+      )}
+      { !loading && elements.length !== 0 &&(
+      <div className="my-8 text-center">
+            <button
+              onClick={handleReset}
+              className="px-6 py-2 text-lg rounded-md bg-blue-600 hover:bg-blue-700 transition duration-200"
+            >
+              Back to Input Section
+            </button>
+          </div>
+      )}
     </div>
+      
   );
 };
 
