@@ -3,14 +3,17 @@ import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, Li
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
-const FeedbackSection = ({ feedback, loading,posture, resetInterview }) => {
-  // Data for the bar chart
+const FeedbackSection = ({ feedback = {}, loading = true, posture, resetInterview }) => {
   const chartData = {
     labels: ['Quality', 'Clarity', 'Relevance'],
     datasets: [
       {
         label: 'Feedback Scores',
-        data: [(feedback.quality/10)*100, (feedback.clarity/10)*100, (feedback.relevance/10)*100],
+        data: [
+          (feedback.quality ? (feedback.quality / 10) * 100 : 0),
+          (feedback.clarity ? (feedback.clarity / 10) * 100 : 0),
+          (feedback.relevance ? (feedback.relevance / 10) * 100 : 0),
+        ],
         backgroundColor: ['#4CAF50', '#2196F3', '#F44336'],
         borderColor: ['#388E3C', '#1976D2', '#D32F2F'],
         borderWidth: 1,
