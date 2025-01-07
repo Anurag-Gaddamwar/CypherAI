@@ -369,8 +369,11 @@ const InterviewSimulation = () => {
     setQuestions([]);
     setAnswers({});
     setTranscript('');
+    setJobRole(''); // Clear job role
+    setResume(null); // Clear resume
+    setInterviewType(''); // Clear interview type
   };
-
+  
 
 
   const handleJobRoleChange = (e) => setJobRole(e.target.value);
@@ -495,4 +498,3 @@ const InterviewSimulation = () => {
 };
 
 export default InterviewSimulation;
- 
