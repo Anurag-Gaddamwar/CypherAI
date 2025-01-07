@@ -24,6 +24,9 @@ const FeedbackSection = ({ feedback = {}, loading = true, posture, resetIntervie
   // Options for the bar chart
   const chartOptions = {
     responsive: true,
+    layout: {
+      padding: 0,
+    },
     scales: {
       x: {
         beginAtZero: true,
