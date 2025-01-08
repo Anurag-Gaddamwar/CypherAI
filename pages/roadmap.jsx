@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react';  
 import axios from 'axios';
 import '../src/app/globals.css';
 import Navbar from '../src/app/components/Navbar';
-import { FaSpinner } from 'react-icons/fa';
+import { FaSpinner, FaYoutube } from 'react-icons/fa'; // Import FaYoutube
 
 const Roadmap = () => {
   const [jobRole, setJobRole] = useState('');
@@ -24,16 +24,9 @@ const Roadmap = () => {
         currentQuery: jobRole,
       });
 
-      if (response.data && response.data.text) {
-        const roadmapText = response.data.text;
-        const skills = roadmapText
-          .split('\n')
-          .filter((line) => line.includes(':'))
-          .map((line) => {
-            const [label, days] = line.split(':');
-            return { label: label.trim(), days: parseInt(days.trim().replace(/\D/g, ''), 10) };
-          });
-        setElements(skills);
+      if (response.data && response.data.parsedData) {
+        const roadmapData = response.data.parsedData;
+        setElements(roadmapData);
       } else {
         setError('No roadmap data found.');
       }
@@ -90,11 +83,19 @@ const Roadmap = () => {
                 }`}
               >
                 <div
-                  className={`info-box text-base text-thin bg-gray-800 text-white rounded-md px-6 py-4 shadow-md w-48 ml-6 text-justified
-                  }`}
+                  className={`info-box text-base text-thin bg-gray-800 text-white rounded-md px-6 py-4 shadow-md w-48 ml-6 text-justified`}
                 >
-                  <p className="font-bold">{skill.label}</p>
+                  <p className="font-bold">{skill.skill}</p>
                   <p className="bg-gray-700 text-center border m-1 p-2 rounded-xl">{skill.days} days</p>
+                  <a
+                    href={skill.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-yellow-400 font-semibold hover:text-yellow-500 transition duration-300 transform hover:scale-105"
+                  >
+                    <FaYoutube className="mr-2 text-red-500 text-xl" /> 
+                    {skill.channel}
+                  </a>
                 </div>
                 <div
                   className={`marker w-10 h-10 bg-yellow-500 rounded-full shadow-lg flex items-center justify-center text-black font-bold z-10`}
@@ -104,22 +105,19 @@ const Roadmap = () => {
               </div>
             ))}
           </div>
-          
         </div>
-        
       )}
-      { !loading && elements.length !== 0 &&(
-      <div className="my-8 text-center">
-            <button
-              onClick={handleReset}
-              className="px-6 py-2 text-lg rounded-md bg-blue-600 hover:bg-blue-700 transition duration-200"
-            >
-              Back to Input Section
-            </button>
-          </div>
+      {!loading && elements.length !== 0 && (
+        <div className="my-8 text-center">
+          <button
+            onClick={handleReset}
+            className="px-6 py-2 text-lg rounded-md bg-blue-600 hover:bg-blue-700 transition duration-200"
+          >
+            Back to Input Section
+          </button>
+        </div>
       )}
     </div>
-      
   );
 };
 
