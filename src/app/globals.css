@@ -283,15 +283,18 @@ video.mirrored {
   border-radius: 15px;
   overflow: hidden;
 }
+
+
+
 .road-line {
   background: repeating-linear-gradient(
     to bottom,
-    #ffcc00,
-    #ffcc00 10px,
-    #333 10px,
-    #333 20px
+    transparent, transparent 50px, /* Transparent section before the white line */
+    white 50px, white 120px  /* Longer white stripes with a bigger gap between them */
   );
 }
+
+
 
 .info-box{
   z-index:3;
