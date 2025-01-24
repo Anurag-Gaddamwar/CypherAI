@@ -83,7 +83,7 @@ const Roadmap = () => {
                 }`}
               >
                 <div
-                  className={`info-box text-base text-thin bg-gray-800 text-white rounded-md px-6 py-4 shadow-md w-48 ml-6 text-justified`}
+                  className={`info-box text-base text-thin bg-gray-800 text-white rounded-md px-6 py-4 shadow-md w-52 ml-6 text-justified`}
                 >
                   <p className="font-bold">{skill.skill}</p>
                   <p className="bg-gray-700 text-center border m-1 p-2 rounded-xl">{skill.days} days</p>
